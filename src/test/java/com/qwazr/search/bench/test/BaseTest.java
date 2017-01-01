@@ -15,7 +15,9 @@
  */
 package com.qwazr.search.bench.test;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -37,13 +39,27 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 
 	static final int RAM_BUFFER_SIZE = 256;
 
-	static final int BATCH_SIZE = 7500;
+	static final int BATCH_SIZE = 10000;
 
-	static final int LIMIT = 20000;
+	static final int LIMIT = 128000;
 
 	static final File SHORT_ABSTRACT_FILE = new File("data/short_abstracts_en.ttl.bz2");
 
 	static Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
+
+	protected static ExecutorService executor;
+	protected static Path indexDirectory;
+
+	@BeforeClass
+	public static void before() throws Exception {
+		indexDirectory = Files.createTempDirectory("QwazrSearchBench");
+		executor = Executors.newCachedThreadPool();
+	}
+
+	@AfterClass
+	public static void after() {
+		executor.shutdown();
+	}
 
 	private final Consumer<List<T>> doNothingConsumer = buffer -> {
 		Assert.assertTrue(buffer.size() > 0);
@@ -51,30 +67,21 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 
 	private final TtlLoader<T> loader;
 	private final int limit;
-	final Path indexDirectory;
-	final ExecutorService executor;
 
-	long count;
-
-	BaseTest(File ttlFile, int batchSize, int limit) throws IOException {
+	BaseTest(File ttlFile, int batchSize, int limit) {
 		this.loader = new TtlLoader<>(ttlFile, batchSize);
 		this.limit = limit;
-		this.indexDirectory = Files.createTempDirectory("QwazrSearchBench");
-		this.executor = Executors.newCachedThreadPool();
 	}
 
 	@Test
-	public void test100loadDoNothing() throws IOException {
+	public void test100loadWarmupDoNothing() throws IOException {
 		loader.load(limit, this, doNothingConsumer);
 	}
 
-	@Test
-	public void test200secondLoadDoNothing() throws IOException {
-		loader.load(limit, this, doNothingConsumer);
-	}
+	private static long count;
 
 	@Test
-	public void test300LoadReadTest() throws IOException {
+	public void test200LoadRealTest() throws IOException {
 		long time = System.currentTimeMillis();
 		count = loader.load(limit, this, this);
 		time = System.currentTimeMillis() - time;
@@ -83,7 +90,13 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 		LOGGER.info(count + " lines indexed");
 	}
 
+	abstract long getNumDocs() throws IOException;
+
+	abstract long getHits(String field, String term) throws IOException;
+
 	@Test
-	public abstract void testZZZCheck() throws IOException;
+	public void testZZZCheck() throws IOException {
+		Assert.assertEquals(count, getNumDocs());
+	}
 
 }

@@ -16,51 +16,30 @@
 package com.qwazr.search.bench.test;
 
 import com.qwazr.search.annotations.AnnotatedIndexService;
-import com.qwazr.search.index.IndexManager;
-import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.List;
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ShortAbstractQwazrTest extends BaseTest<ShortAbstractQwazrRecord> {
+public class ShortAbstractQwazrTest extends QwazrTest<ShortAbstractQwazrRecord> {
 
-	private IndexManager indexManager;
-	private AnnotatedIndexService<ShortAbstractQwazrRecord> indexService;
+	private static AnnotatedIndexService<ShortAbstractQwazrRecord> indexService;
 
-	public ShortAbstractQwazrTest() throws IOException, URISyntaxException {
-		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT);
-		indexManager = new IndexManager(null, indexDirectory, executor);
+	@BeforeClass
+	public static void before() throws Exception {
+		QwazrTest.before();
 		indexService = indexManager.getService(ShortAbstractQwazrRecord.class);
 		indexService.createUpdateSchema();
 		indexService.createUpdateIndex();
 		indexService.createUpdateFields();
 	}
 
-	@Override
-	public void finalize() {
-		indexManager.close();
+	public ShortAbstractQwazrTest() {
+		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT, indexService);
 	}
 
 	@Override
-	final public void accept(final List<ShortAbstractQwazrRecord> buffer) {
-		try {
-			indexService.postDocuments(buffer);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	final public ShortAbstractQwazrRecord apply(final TtlLineReader lineReader) {
-		return new ShortAbstractQwazrRecord(lineReader);
-	}
-
-	@Override
-	public void testZZZCheck() {
-		Assert.assertEquals(count, (long) indexService.getIndexStatus().num_docs);
+	public ShortAbstractQwazrRecord apply(final TtlLineReader ttlLineReader) {
+		return new ShortAbstractQwazrRecord(ttlLineReader);
 	}
 }

@@ -17,11 +17,12 @@ package com.qwazr.search.bench.test;
 
 import com.qwazr.utils.FunctionUtils;
 import com.qwazr.utils.IOUtils;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.SerialMergeScheduler;
-import org.apache.lucene.index.SnapshotDeletionPolicy;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
@@ -44,12 +45,11 @@ public class LuceneIndex implements Closeable {
 
 	LuceneIndex(Path indexDirectory, ExecutorService executorService, int ramBufferSize) throws IOException {
 		directory = FSDirectory.open(indexDirectory);
-		final IndexWriterConfig indexWriterConfig = new IndexWriterConfig();
+		final IndexWriterConfig indexWriterConfig =
+				new IndexWriterConfig(new PerFieldAnalyzerWrapper(new StandardAnalyzer()));
 		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
 		indexWriterConfig.setRAMBufferSizeMB(ramBufferSize);
 		indexWriterConfig.setMergeScheduler(new SerialMergeScheduler());
-		indexWriterConfig.setIndexDeletionPolicy(
-				new SnapshotDeletionPolicy(indexWriterConfig.getIndexDeletionPolicy()));
 		indexWriter = new IndexWriter(directory, indexWriterConfig);
 		searcherManager = new SearcherManager(indexWriter,
 				executorService == null ? new SearcherFactory() : new MultiThreadSearcherFactory(executorService));
@@ -57,6 +57,7 @@ public class LuceneIndex implements Closeable {
 
 	final public void write(final FunctionUtils.ConsumerEx<IndexWriter, IOException> index) throws IOException {
 		index.accept(indexWriter);
+		indexWriter.flush();
 		indexWriter.commit();
 		searcherManager.maybeRefresh();
 	}

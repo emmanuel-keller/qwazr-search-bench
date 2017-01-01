@@ -18,11 +18,12 @@ package com.qwazr.search.bench.test;
 import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.field.FieldDefinition;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-@Index(name = "shortAbtract", schema = "searchTest", ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
+@Index(name = "shortAbstract", schema = "searchTest", ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
 final public class ShortAbstractQwazrRecord {
 
 	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField)
@@ -31,7 +32,7 @@ final public class ShortAbstractQwazrRecord {
 	@IndexField(template = FieldDefinition.Template.FacetField)
 	final String predicate;
 
-	@IndexField(template = FieldDefinition.Template.TextField)
+	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
 	final String shortAbstract;
 
 	public ShortAbstractQwazrRecord() {

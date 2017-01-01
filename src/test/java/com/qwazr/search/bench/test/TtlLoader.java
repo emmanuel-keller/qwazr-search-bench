@@ -59,17 +59,22 @@ public class TtlLoader<T> {
 							lineReader.read(line);
 							buffer.add(function.apply(lineReader));
 							if (buffer.size() == batchSize)
-								consumer.accept(buffer);
+								pushBuffer(consumer);
 							if (++count == limit)
 								break;
 						}
 						if (!buffer.isEmpty())
-							consumer.accept(buffer);
+							pushBuffer(consumer);
 						return count;
 					}
 				}
 			}
 		}
+	}
+
+	private void pushBuffer(final Consumer<List<T>> consumer) {
+		consumer.accept(buffer);
+		buffer.clear();
 	}
 
 }

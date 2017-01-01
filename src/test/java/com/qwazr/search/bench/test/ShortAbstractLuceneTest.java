@@ -15,55 +15,48 @@
  */
 package com.qwazr.search.bench.test;
 
-import com.qwazr.utils.IOUtils;
-import org.junit.Assert;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.facet.FacetsConfig;
+import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetField;
+import org.apache.lucene.index.Term;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ShortAbstractLuceneTest extends BaseTest<ShortAbstractLuceneRecord> {
+public class ShortAbstractLuceneTest extends LuceneTest<LuceneRecord> {
 
-	private LuceneIndex luceneIndex;
+	final static String URL = "url";
+	final static String PREDICATE = "predicate";
+	final static String SHORT_ABSTRACT = "shortAbstract";
+
+	final static FacetsConfig FACETS_CONFIG = new FacetsConfig();
+
+	static {
+		FACETS_CONFIG.setMultiValued(PREDICATE, false);
+	}
 
 	public ShortAbstractLuceneTest() throws IOException, URISyntaxException {
 		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT);
-		luceneIndex = new LuceneIndex(indexDirectory, executor, RAM_BUFFER_SIZE);
 	}
 
 	@Override
-	public void finalize() {
-		IOUtils.close(luceneIndex);
-	}
-
-	@Override
-	final public void accept(final List<ShortAbstractLuceneRecord> buffer) {
+	final public LuceneRecord apply(final TtlLineReader lineReader) {
 		try {
-			luceneIndex.write(writer -> {
-				for (ShortAbstractLuceneRecord record : buffer)
-					writer.updateDocument(record.termId, record.document);
-			});
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	final public ShortAbstractLuceneRecord apply(final TtlLineReader lineReader) {
-		try {
-			return new ShortAbstractLuceneRecord(lineReader);
+			final Term termId = new Term(URL, lineReader.subject);
+			final Document doc = new Document();
+			doc.add(new StringField(URL, termId.bytes(), Field.Store.NO));
+			doc.add(new SortedSetDocValuesFacetField(PREDICATE, lineReader.predicate));
+			doc.add(new TextField(SHORT_ABSTRACT, lineReader.object, Field.Store.NO));
+			return new LuceneRecord(termId, FACETS_CONFIG.build(doc));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	@Override
-	public void testZZZCheck() throws IOException {
-		Long numDocs = luceneIndex.search(searcher -> (long) searcher.getIndexReader().numDocs());
-		Assert.assertEquals(count, numDocs.longValue());
 	}
 
 }
