@@ -19,6 +19,7 @@ import com.qwazr.utils.FunctionUtils;
 import com.qwazr.utils.IOUtils;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.CheckIndex;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -60,6 +61,10 @@ public class LuceneIndex implements Closeable {
 		indexWriter.flush();
 		indexWriter.commit();
 		searcherManager.maybeRefresh();
+	}
+
+	final public CheckIndex.Status check() throws IOException {
+		return new CheckIndex(directory).checkIndex();
 	}
 
 	@FunctionalInterface

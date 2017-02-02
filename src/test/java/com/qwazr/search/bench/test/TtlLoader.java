@@ -49,7 +49,7 @@ public class TtlLoader<T> {
 			throws IOException {
 		int count = 0;
 		try (final FileInputStream fIn = new FileInputStream(ttlFile)) {
-			try (final BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(fIn)) {
+			try (final BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(fIn, true)) {
 				try (final InputStreamReader isr = new InputStreamReader(bzIn, Charset.forName("UTF-8"))) {
 					try (final BufferedReader br = new BufferedReader(isr)) {
 						String line;

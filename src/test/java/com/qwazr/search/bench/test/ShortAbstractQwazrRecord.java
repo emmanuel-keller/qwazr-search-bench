@@ -29,7 +29,7 @@ final public class ShortAbstractQwazrRecord {
 	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField)
 	final String url;
 
-	@IndexField(template = FieldDefinition.Template.FacetField)
+	@IndexField(template = FieldDefinition.Template.FacetField, facetMultivalued = true)
 	final String predicate;
 
 	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)

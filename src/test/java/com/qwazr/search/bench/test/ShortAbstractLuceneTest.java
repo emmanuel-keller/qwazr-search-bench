@@ -22,6 +22,7 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.util.BytesRef;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
@@ -48,9 +49,10 @@ public class ShortAbstractLuceneTest extends LuceneTest<LuceneRecord> {
 	@Override
 	final public LuceneRecord apply(final TtlLineReader lineReader) {
 		try {
-			final Term termId = new Term(URL, lineReader.subject);
+			final BytesRef termBytesRef = new BytesRef(lineReader.subject);
+			final Term termId = new Term(URL, termBytesRef);
 			final Document doc = new Document();
-			doc.add(new StringField(URL, termId.bytes(), Field.Store.NO));
+			doc.add(new StringField(URL, termBytesRef, Field.Store.NO));
 			doc.add(new SortedSetDocValuesFacetField(PREDICATE, lineReader.predicate));
 			doc.add(new TextField(SHORT_ABSTRACT, lineReader.object, Field.Store.NO));
 			return new LuceneRecord(termId, FACETS_CONFIG.build(doc));

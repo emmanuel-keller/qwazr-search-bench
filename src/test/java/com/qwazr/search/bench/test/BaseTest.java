@@ -15,6 +15,7 @@
  */
 package com.qwazr.search.bench.test;
 
+import com.qwazr.utils.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,7 +26,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -43,6 +50,8 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 
 	static final int LIMIT = 128000;
 
+	static final String SHORT_ABSTRACT_URL = "http://downloads.dbpedia.org/3.9/en/short_abstracts_en.ttl.bz2";
+
 	static final File SHORT_ABSTRACT_FILE = new File("data/short_abstracts_en.ttl.bz2");
 
 	static Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
@@ -52,6 +61,19 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 
 	@BeforeClass
 	public static void before() throws Exception {
+		if (!SHORT_ABSTRACT_FILE.exists()) {
+			SHORT_ABSTRACT_FILE.getParentFile().mkdir();
+			try (final InputStream input = new URL(SHORT_ABSTRACT_URL).openStream()) {
+				try (ReadableByteChannel rbc = Channels.newChannel(input)) {
+					try (final FileOutputStream fos = new FileOutputStream(SHORT_ABSTRACT_FILE)) {
+						try (final FileChannel fileChannel = fos.getChannel()) {
+							fileChannel.transferFrom(rbc, 0, Long.MAX_VALUE);
+						}
+					}
+				}
+			}
+		}
+
 		indexDirectory = Files.createTempDirectory("QwazrSearchBench");
 		executor = Executors.newCachedThreadPool();
 	}
@@ -97,6 +119,7 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 	@Test
 	public void testZZZCheck() throws IOException {
 		Assert.assertEquals(count, getNumDocs());
+		LOGGER.info("Index size: " + FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(indexDirectory.toFile())));
 	}
 
 }

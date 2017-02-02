@@ -43,6 +43,8 @@ final public class TtlLineReader {
 		int end;
 		do {
 			end = line.indexOf(endChar, searchPos);
+			if (end == -1)
+				return null;
 			if (line.charAt(end - 1) != '\\')
 				break;
 			searchPos = end + 1;
