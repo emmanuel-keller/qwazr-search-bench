@@ -7,3 +7,6 @@ addons:
     packages:
       - oracle-java8-installer
 install: mvn install -DskipTests=true -Dgpg.skip=true -Dmaven.javadoc.skip=true -B -V
+cache:
+  directories:
+  - data
