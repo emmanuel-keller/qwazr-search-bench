@@ -19,7 +19,6 @@ import com.qwazr.utils.IOUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
@@ -30,11 +29,10 @@ import java.util.List;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class LuceneTest<T extends LuceneRecord> extends BaseTest<T> {
 
-	private static LuceneIndex luceneIndex;
+	protected static LuceneIndex luceneIndex;
 
-	@BeforeClass
-	public static void before() throws Exception {
-		BaseTest.before();
+	public static void before(final boolean withExecutor) throws Exception {
+		BaseTest.before(withExecutor);
 		luceneIndex = new LuceneIndex(indexDirectory, executor, RAM_BUFFER_SIZE);
 	}
 

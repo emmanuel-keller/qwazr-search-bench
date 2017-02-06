@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test;
+package com.qwazr.search.bench.test.TaxonomyFacet;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.Term;
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
-/**
- * Created by ekeller on 01/01/2017.
- */
-final public class LuceneRecord {
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class TaxonomyFacetWithoutExecutorLuceneTest extends TaxonomyFacetLuceneTest {
 
-	final Term termId;
-	final Document document;
-
-	public LuceneRecord(final Term termId, final Document document) throws IOException {
-		this.termId = termId;
-		this.document = document;
+	public TaxonomyFacetWithoutExecutorLuceneTest() throws IOException, URISyntaxException {
 	}
 
+	@BeforeClass
+	public static void before() throws Exception {
+		before(false);
+	}
 }

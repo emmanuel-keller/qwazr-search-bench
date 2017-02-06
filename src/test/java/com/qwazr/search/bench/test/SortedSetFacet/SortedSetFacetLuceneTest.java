@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test;
+package com.qwazr.search.bench.test.SortedSetFacet;
 
+import com.qwazr.search.bench.test.LuceneRecord;
+import com.qwazr.search.bench.test.LuceneTest;
+import com.qwazr.search.bench.test.TtlLineReader;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.sortedset.SortedSetDocValuesFacetField;
 import org.apache.lucene.index.Term;
@@ -30,19 +32,18 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ShortAbstractLuceneTest extends LuceneTest<LuceneRecord> {
+public abstract class SortedSetFacetLuceneTest extends LuceneTest<LuceneRecord> {
 
 	final static String URL = "url";
 	final static String PREDICATE = "predicate";
-	final static String SHORT_ABSTRACT = "shortAbstract";
 
 	final static FacetsConfig FACETS_CONFIG = new FacetsConfig();
 
 	static {
-		FACETS_CONFIG.setMultiValued(PREDICATE, false);
+		FACETS_CONFIG.setMultiValued(PREDICATE, true);
 	}
 
-	public ShortAbstractLuceneTest() throws IOException, URISyntaxException {
+	public SortedSetFacetLuceneTest() throws IOException, URISyntaxException {
 		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT);
 	}
 
@@ -54,7 +55,6 @@ public class ShortAbstractLuceneTest extends LuceneTest<LuceneRecord> {
 			final Document doc = new Document();
 			doc.add(new StringField(URL, termBytesRef, Field.Store.NO));
 			doc.add(new SortedSetDocValuesFacetField(PREDICATE, lineReader.predicate));
-			doc.add(new TextField(SHORT_ABSTRACT, lineReader.object, Field.Store.NO));
 			return new LuceneRecord(termId, FACETS_CONFIG.build(doc));
 		} catch (IOException e) {
 			throw new RuntimeException(e);

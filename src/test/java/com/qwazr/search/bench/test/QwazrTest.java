@@ -31,11 +31,11 @@ import java.util.List;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class QwazrTest<T> extends BaseTest<T> {
 
-	static IndexManager indexManager;
+	public static IndexManager indexManager;
 
 	@BeforeClass
 	public static void before() throws Exception {
-		BaseTest.before();
+		BaseTest.before(true);
 		indexManager = new IndexManager(null, indexDirectory, executor);
 	}
 

@@ -13,37 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test;
+package com.qwazr.search.bench.test.FullText;
 
 import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
+import com.qwazr.search.bench.test.BaseQwazrRecord;
+import com.qwazr.search.bench.test.BaseTest;
+import com.qwazr.search.bench.test.TtlLineReader;
 import com.qwazr.search.field.FieldDefinition;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-@Index(name = "shortAbstract", schema = "searchTest", ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
-final public class ShortAbstractQwazrRecord {
-
-	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField)
-	final String url;
-
-	@IndexField(template = FieldDefinition.Template.FacetField, facetMultivalued = true)
-	final String predicate;
+@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
+final public class ShortAbstractQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
 	final String shortAbstract;
 
 	public ShortAbstractQwazrRecord() {
-		url = null;
-		predicate = null;
 		shortAbstract = null;
 	}
 
 	ShortAbstractQwazrRecord(final TtlLineReader line) {
-		url = line.subject;
-		predicate = line.predicate;
+		super(line);
 		shortAbstract = line.object;
 	}
 }

@@ -18,7 +18,6 @@ package com.qwazr.search.bench.test;
 import com.qwazr.utils.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -44,23 +43,31 @@ import java.util.function.Function;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLineReader, T> {
 
-	static final int RAM_BUFFER_SIZE = 256;
+	public static final String SCHEMA_NAME = "schemaTest";
 
-	static final int BATCH_SIZE = 10000;
+	public static final String INDEX_NAME = "indexTest";
 
-	static final int LIMIT = 128000;
+	public static final int RAM_BUFFER_SIZE = 256;
+
+	public static final int BATCH_SIZE = getEnvOrDefault("SEARCH_BENCH_BATCH_SIZE", 5000);
+
+	public static final int LIMIT = getEnvOrDefault("SEARCH_BENCH_LIMIT", 512000);
 
 	static final String SHORT_ABSTRACT_URL = "http://downloads.dbpedia.org/3.9/en/short_abstracts_en.ttl.bz2";
 
-	static final File SHORT_ABSTRACT_FILE = new File("data/short_abstracts_en.ttl.bz2");
+	public static final File SHORT_ABSTRACT_FILE = new File("data/short_abstracts_en.ttl.bz2");
 
 	static Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
 	protected static ExecutorService executor;
 	protected static Path indexDirectory;
 
-	@BeforeClass
-	public static void before() throws Exception {
+	private static int getEnvOrDefault(String key, int def) {
+		String val = System.getenv(key);
+		return val == null ? def : Integer.parseInt(val);
+	}
+
+	public static void before(boolean withExecutor) throws Exception {
 		if (!SHORT_ABSTRACT_FILE.exists()) {
 			SHORT_ABSTRACT_FILE.getParentFile().mkdir();
 			try (final InputStream input = new URL(SHORT_ABSTRACT_URL).openStream()) {
@@ -75,17 +82,17 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 		}
 
 		indexDirectory = Files.createTempDirectory("QwazrSearchBench");
-		executor = Executors.newCachedThreadPool();
+		executor = withExecutor ? Executors.newCachedThreadPool() : null;
 	}
 
 	@AfterClass
 	public static void after() {
-		executor.shutdown();
+		if (executor != null)
+			executor.shutdown();
+		System.gc();
 	}
 
-	private final Consumer<List<T>> doNothingConsumer = buffer -> {
-		Assert.assertTrue(buffer.size() > 0);
-	};
+	private final Consumer<List<T>> doNothingConsumer = buffer -> Assert.assertTrue(buffer.size() > 0);
 
 	private final TtlLoader<T> loader;
 	private final int limit;
@@ -108,6 +115,8 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 		count = loader.load(limit, this, this);
 		time = System.currentTimeMillis() - time;
 		final long rate = (count * 1000) / time;
+		LOGGER.info("###");
+		LOGGER.info("### " + getClass().getSimpleName());
 		LOGGER.info("Rate: " + rate);
 		LOGGER.info(count + " lines indexed");
 	}
@@ -119,7 +128,10 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 	@Test
 	public void testZZZCheck() throws IOException {
 		Assert.assertEquals(count, getNumDocs());
-		LOGGER.info("Index size: " + FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(indexDirectory.toFile())));
+		final Path rootPath = indexDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
+		LOGGER.info("Index size: " + FileUtils.byteCountToDisplaySize(
+				FileUtils.sizeOf(rootPath.resolve("data").toFile()) + FileUtils.sizeOf(
+						rootPath.resolve("taxonomy").toFile())));
 	}
 
 }

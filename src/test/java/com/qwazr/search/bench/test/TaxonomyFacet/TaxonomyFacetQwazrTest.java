@@ -13,33 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test;
+package com.qwazr.search.bench.test.TaxonomyFacet;
 
 import com.qwazr.search.annotations.AnnotatedIndexService;
+import com.qwazr.search.bench.test.QwazrTest;
+import com.qwazr.search.bench.test.TtlLineReader;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ShortAbstractQwazrTest extends QwazrTest<ShortAbstractQwazrRecord> {
+public class TaxonomyFacetQwazrTest extends QwazrTest<TaxonomyFacetQwazrRecord> {
 
-	private static AnnotatedIndexService<ShortAbstractQwazrRecord> indexService;
+	private static AnnotatedIndexService<TaxonomyFacetQwazrRecord> indexService;
 
 	@BeforeClass
 	public static void before() throws Exception {
 		QwazrTest.before();
-		indexService = indexManager.getService(ShortAbstractQwazrRecord.class);
+		indexService = indexManager.getService(TaxonomyFacetQwazrRecord.class);
 		indexService.createUpdateSchema();
 		indexService.createUpdateIndex();
 		indexService.createUpdateFields();
 	}
 
-	public ShortAbstractQwazrTest() {
+	public TaxonomyFacetQwazrTest() {
 		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT, indexService);
 	}
 
 	@Override
-	public ShortAbstractQwazrRecord apply(final TtlLineReader ttlLineReader) {
-		return new ShortAbstractQwazrRecord(ttlLineReader);
+	public TaxonomyFacetQwazrRecord apply(final TtlLineReader ttlLineReader) {
+		return new TaxonomyFacetQwazrRecord(ttlLineReader);
 	}
 }

@@ -19,19 +19,23 @@ import com.qwazr.utils.FunctionUtils;
 import com.qwazr.utils.IOUtils;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.CheckIndex;
+import org.apache.lucene.facet.taxonomy.SearcherTaxonomyManager;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.SerialMergeScheduler;
+import org.apache.lucene.index.SnapshotDeletionPolicy;
+import org.apache.lucene.index.TieredMergePolicy;
+import org.apache.lucene.replicator.IndexAndTaxonomyRevision;
+import org.apache.lucene.replicator.LocalReplicator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SearcherFactory;
-import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
@@ -40,31 +44,47 @@ import java.util.concurrent.ExecutorService;
  */
 public class LuceneIndex implements Closeable {
 
-	private final Directory directory;
-	private final IndexWriter indexWriter;
-	private final SearcherManager searcherManager;
+	final Directory dataDirectory;
+	final Directory taxonomyDirectory;
+	final LocalReplicator localReplicator;
+	public final IndexWriter indexWriter;
+	public final IndexAndTaxonomyRevision.SnapshotDirectoryTaxonomyWriter taxonomyWriter;
+	public final SearcherTaxonomyManager searcherTaxonomyManager;
 
-	LuceneIndex(Path indexDirectory, ExecutorService executorService, int ramBufferSize) throws IOException {
-		directory = FSDirectory.open(indexDirectory);
+	LuceneIndex(Path rootDirectory, ExecutorService executorService, int ramBufferSize) throws IOException {
+
+		Path schemaDirectory = Files.createDirectory(rootDirectory.resolve(BaseTest.SCHEMA_NAME));
+		Path indexDirectory = Files.createDirectory(schemaDirectory.resolve(BaseTest.INDEX_NAME));
+		this.dataDirectory = FSDirectory.open(indexDirectory.resolve("data"));
+		this.taxonomyDirectory = FSDirectory.open(indexDirectory.resolve("taxonomy"));
 		final IndexWriterConfig indexWriterConfig =
 				new IndexWriterConfig(new PerFieldAnalyzerWrapper(new StandardAnalyzer()));
 		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
 		indexWriterConfig.setRAMBufferSizeMB(ramBufferSize);
 		indexWriterConfig.setMergeScheduler(new SerialMergeScheduler());
-		indexWriter = new IndexWriter(directory, indexWriterConfig);
-		searcherManager = new SearcherManager(indexWriter,
-				executorService == null ? new SearcherFactory() : new MultiThreadSearcherFactory(executorService));
+		indexWriterConfig.setMergePolicy(new TieredMergePolicy());
+
+		// We use snapshots deletion policy
+		final SnapshotDeletionPolicy snapshotDeletionPolicy =
+				new SnapshotDeletionPolicy(indexWriterConfig.getIndexDeletionPolicy());
+		indexWriterConfig.setIndexDeletionPolicy(snapshotDeletionPolicy);
+
+		this.indexWriter = new IndexWriter(this.dataDirectory, indexWriterConfig);
+		this.taxonomyWriter = new IndexAndTaxonomyRevision.SnapshotDirectoryTaxonomyWriter(taxonomyDirectory);
+		searcherTaxonomyManager = new SearcherTaxonomyManager(this.indexWriter, true,
+				executorService == null ? new SearcherFactory() : new MultiThreadSearcherFactory(executorService),
+				this.taxonomyWriter);
+		localReplicator = new LocalReplicator();
 	}
 
 	final public void write(final FunctionUtils.ConsumerEx<IndexWriter, IOException> index) throws IOException {
 		index.accept(indexWriter);
+		taxonomyWriter.getIndexWriter().flush();
+		taxonomyWriter.commit();
 		indexWriter.flush();
 		indexWriter.commit();
-		searcherManager.maybeRefresh();
-	}
-
-	final public CheckIndex.Status check() throws IOException {
-		return new CheckIndex(directory).checkIndex();
+		searcherTaxonomyManager.maybeRefresh();
+		localReplicator.publish(new IndexAndTaxonomyRevision(indexWriter, taxonomyWriter));
 	}
 
 	@FunctionalInterface
@@ -73,17 +93,17 @@ public class LuceneIndex implements Closeable {
 	}
 
 	final public <T> T search(final FunctionEx<IndexSearcher, T, IOException> search) throws IOException {
-		final IndexSearcher searcher = searcherManager.acquire();
+		final SearcherTaxonomyManager.SearcherAndTaxonomy searcherAndTaxonomy = searcherTaxonomyManager.acquire();
 		try {
-			return search.apply(searcher);
+			return search.apply(searcherAndTaxonomy.searcher);
 		} finally {
-			searcherManager.release(searcher);
+			searcherTaxonomyManager.release(searcherAndTaxonomy);
 		}
 	}
 
 	@Override
 	public void close() throws IOException {
-		IOUtils.close(searcherManager, indexWriter, directory);
+		IOUtils.close(searcherTaxonomyManager, taxonomyWriter, indexWriter, taxonomyDirectory, dataDirectory);
 	}
 
 	private static class MultiThreadSearcherFactory extends SearcherFactory {

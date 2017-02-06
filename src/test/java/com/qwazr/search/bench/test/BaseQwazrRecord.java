@@ -15,22 +15,23 @@
  */
 package com.qwazr.search.bench.test;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.Term;
-
-import java.io.IOException;
+import com.qwazr.search.annotations.Index;
+import com.qwazr.search.annotations.IndexField;
+import com.qwazr.search.field.FieldDefinition;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-final public class LuceneRecord {
+public abstract class BaseQwazrRecord {
 
-	final Term termId;
-	final Document document;
+	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField)
+	final String url;
 
-	public LuceneRecord(final Term termId, final Document document) throws IOException {
-		this.termId = termId;
-		this.document = document;
+	public BaseQwazrRecord() {
+		url = null;
 	}
 
+	public BaseQwazrRecord(final TtlLineReader line) {
+		url = line.subject;
+	}
 }
