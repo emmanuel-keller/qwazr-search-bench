@@ -15,6 +15,7 @@
  */
 package com.qwazr.search.bench.test;
 
+import com.qwazr.profiler.ProfilerManager;
 import com.qwazr.utils.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -68,6 +69,10 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 	}
 
 	public static void before(boolean withExecutor) throws Exception {
+
+		ProfilerManager.load(null);
+
+		Thread.sleep(20000);
 		if (!SHORT_ABSTRACT_FILE.exists()) {
 			SHORT_ABSTRACT_FILE.getParentFile().mkdir();
 			try (final InputStream input = new URL(SHORT_ABSTRACT_URL).openStream()) {
@@ -90,6 +95,8 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 		if (executor != null)
 			executor.shutdown();
 		System.gc();
+		ProfilerManager.dump();
+		ProfilerManager.reset();
 	}
 
 	private final Consumer<List<T>> doNothingConsumer = buffer -> Assert.assertTrue(buffer.size() > 0);
