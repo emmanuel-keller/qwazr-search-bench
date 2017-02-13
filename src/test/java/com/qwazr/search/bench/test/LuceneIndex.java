@@ -114,7 +114,8 @@ public class LuceneIndex implements Closeable {
 			this.executorService = executorService;
 		}
 
-		public IndexSearcher newSearcher(IndexReader reader, IndexReader previousReader) throws IOException {
+		final public IndexSearcher newSearcher(final IndexReader reader, final IndexReader previousReader)
+				throws IOException {
 			return new IndexSearcher(reader, executorService);
 		}
 	}
