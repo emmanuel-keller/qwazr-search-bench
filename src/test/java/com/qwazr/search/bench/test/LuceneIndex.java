@@ -15,7 +15,6 @@
  */
 package com.qwazr.search.bench.test;
 
-import com.qwazr.utils.FunctionUtils;
 import com.qwazr.utils.IOUtils;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -77,8 +76,7 @@ public class LuceneIndex implements Closeable {
 		localReplicator = new LocalReplicator();
 	}
 
-	final public void write(final FunctionUtils.ConsumerEx<IndexWriter, IOException> index) throws IOException {
-		index.accept(indexWriter);
+	final public void commitAndPublish() throws IOException {
 		taxonomyWriter.getIndexWriter().flush();
 		taxonomyWriter.commit();
 		indexWriter.flush();

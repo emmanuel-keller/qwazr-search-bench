@@ -18,7 +18,6 @@ package com.qwazr.search.bench.test.SortedSetFacet;
 import com.qwazr.search.bench.test.LuceneRecord;
 import com.qwazr.search.bench.test.LuceneTest;
 import com.qwazr.search.bench.test.TtlLineReader;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.facet.FacetsConfig;
@@ -49,16 +48,12 @@ public abstract class SortedSetFacetLuceneTest extends LuceneTest<LuceneRecord> 
 
 	@Override
 	final public LuceneRecord apply(final TtlLineReader lineReader) {
-		try {
-			final BytesRef termBytesRef = new BytesRef(lineReader.subject);
-			final Term termId = new Term(URL, termBytesRef);
-			final Document doc = new Document();
-			doc.add(new StringField(URL, termBytesRef, Field.Store.NO));
-			doc.add(new SortedSetDocValuesFacetField(PREDICATE, lineReader.predicate));
-			return new LuceneRecord(termId, FACETS_CONFIG.build(doc));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		final BytesRef termBytesRef = new BytesRef(lineReader.subject);
+		record.termId = new Term(URL, termBytesRef);
+		record.document.clear();
+		record.document.add(new StringField(URL, termBytesRef, Field.Store.NO));
+		record.document.add(new SortedSetDocValuesFacetField(PREDICATE, lineReader.predicate));
+		return record;
 	}
 
 }

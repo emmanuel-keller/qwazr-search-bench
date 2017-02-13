@@ -23,8 +23,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -34,18 +32,18 @@ import java.util.function.Function;
 public class TtlLoader<T> {
 
 	private final File ttlFile;
-	private final int batchSize;
 	private final TtlLineReader lineReader;
-	private final List<T> buffer;
+	private final int batchSize;
+	private int bufferSize;
 
 	public TtlLoader(File ttlFile, int batchSize) {
 		this.ttlFile = ttlFile;
-		this.batchSize = batchSize;
 		this.lineReader = new TtlLineReader();
-		this.buffer = new ArrayList<>(batchSize);
+		this.batchSize = batchSize;
+		this.bufferSize = 0;
 	}
 
-	public int load(final int limit, final Function<TtlLineReader, T> function, final Consumer<List<T>> consumer)
+	public int load(final int limit, final Function<TtlLineReader, T> function, final Consumer<T> consumer)
 			throws IOException {
 		int count = 0;
 		try (final FileInputStream fIn = new FileInputStream(ttlFile)) {
@@ -57,24 +55,21 @@ public class TtlLoader<T> {
 							if (line.startsWith("#")) // Ignore comments
 								continue;
 							lineReader.read(line);
-							buffer.add(function.apply(lineReader));
-							if (buffer.size() == batchSize)
-								pushBuffer(consumer);
+							consumer.accept(function.apply(lineReader));
+							if (++bufferSize == batchSize) {
+								consumer.accept(null);
+								bufferSize = 0;
+							}
 							if (++count == limit)
 								break;
 						}
-						if (!buffer.isEmpty())
-							pushBuffer(consumer);
+						if (bufferSize > 0)
+							consumer.accept(null);
 						return count;
 					}
 				}
 			}
 		}
-	}
-
-	private void pushBuffer(final Consumer<List<T>> consumer) {
-		consumer.accept(buffer);
-		buffer.clear();
 	}
 
 }

@@ -26,12 +26,15 @@ import org.junit.runners.MethodSorters;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class QwazrTest<T> extends BaseTest<T> {
 
 	public static IndexManager indexManager;
+
+	private List<T> buffer;
 
 	@BeforeClass
 	public static void before() throws Exception {
@@ -50,12 +53,18 @@ public abstract class QwazrTest<T> extends BaseTest<T> {
 	protected QwazrTest(File ttlFile, int batchSize, int limit, AnnotatedIndexService<T> indexService) {
 		super(ttlFile, batchSize, limit);
 		this.indexService = indexService;
+		this.buffer = new ArrayList<>();
 	}
 
 	@Override
-	final public void accept(final List<T> buffer) {
+	final public void accept(final T record) {
 		try {
-			indexService.postDocuments(buffer);
+			if (record != null)
+				buffer.add(record);
+			else if (!buffer.isEmpty()) {
+				indexService.postDocuments(buffer);
+				buffer.clear();
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

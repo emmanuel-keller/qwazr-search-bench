@@ -35,14 +35,13 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLineReader, T> {
+public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consumer<T> {
 
 	public static final String SCHEMA_NAME = "schemaTest";
 
@@ -73,6 +72,8 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 		ProfilerManager.load(null);
 
 		Thread.sleep(20000);
+
+		// Download the DBPedia file
 		if (!SHORT_ABSTRACT_FILE.exists()) {
 			SHORT_ABSTRACT_FILE.getParentFile().mkdir();
 			try (final InputStream input = new URL(SHORT_ABSTRACT_URL).openStream()) {
@@ -99,7 +100,8 @@ public abstract class BaseTest<T> implements Consumer<List<T>>, Function<TtlLine
 		ProfilerManager.reset();
 	}
 
-	private final Consumer<List<T>> doNothingConsumer = buffer -> Assert.assertTrue(buffer.size() > 0);
+	private final Consumer<T> doNothingConsumer = buffer -> {
+	};
 
 	private final TtlLoader<T> loader;
 	private final int limit;

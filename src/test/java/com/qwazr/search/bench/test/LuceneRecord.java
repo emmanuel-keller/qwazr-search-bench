@@ -18,19 +18,16 @@ package com.qwazr.search.bench.test;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 
-import java.io.IOException;
-
 /**
  * Created by ekeller on 01/01/2017.
  */
 final public class LuceneRecord {
 
-	final Term termId;
-	final Document document;
+	public Term termId;
+	public final Document document;
 
-	public LuceneRecord(final Term termId, final Document document) throws IOException {
-		this.termId = termId;
-		this.document = document;
+	public LuceneRecord() {
+		this.document = new Document();
 	}
 
 }

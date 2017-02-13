@@ -16,6 +16,7 @@
 package com.qwazr.search.bench.test;
 
 import com.qwazr.utils.IOUtils;
+import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
 import org.junit.AfterClass;
@@ -24,12 +25,15 @@ import org.junit.runners.MethodSorters;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class LuceneTest<T extends LuceneRecord> extends BaseTest<T> {
 
 	protected static LuceneIndex luceneIndex;
+
+	protected static final FacetsConfig FACETS_CONFIG = new FacetsConfig();
+
+	protected final LuceneRecord record = new LuceneRecord();
 
 	public static void before(final boolean withExecutor) throws Exception {
 		BaseTest.before(withExecutor);
@@ -47,13 +51,14 @@ public abstract class LuceneTest<T extends LuceneRecord> extends BaseTest<T> {
 	}
 
 	@Override
-	final public void accept(final List<T> buffer) {
+	final public void accept(final T record) {
 		try {
-			luceneIndex.write(writer -> {
-				for (T record : buffer)
-					writer.updateDocument(record.termId, record.document);
-			});
-		} catch (Exception e) {
+			if (record == null)
+				luceneIndex.commitAndPublish();
+			else
+				luceneIndex.indexWriter.updateDocument(record.termId,
+						FACETS_CONFIG.build(luceneIndex.taxonomyWriter, record.document));
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
