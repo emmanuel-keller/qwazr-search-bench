@@ -15,33 +15,25 @@
  */
 package com.qwazr.search.bench.test.SortedSetFacet;
 
-import com.qwazr.search.annotations.AnnotatedIndexService;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.QwazrTest;
-import com.qwazr.search.bench.test.TtlLineReader;
-import org.junit.BeforeClass;
+import com.qwazr.search.bench.test.TestSettings;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQwazrRecord> {
+abstract class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQwazrRecord> {
 
-	private static AnnotatedIndexService<SortedSetFacetQwazrRecord> indexService;
-
-	@BeforeClass
-	public static void before() throws Exception {
-		QwazrTest.before();
-		indexService = indexManager.getService(SortedSetFacetQwazrRecord.class);
-		indexService.createUpdateSchema();
-		indexService.createUpdateIndex();
-		indexService.createUpdateFields();
+	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
+		QwazrTest.before(settingsBuilder.taxonomy(false));
 	}
 
-	public SortedSetFacetQwazrTest() {
-		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT, indexService);
+	SortedSetFacetQwazrTest() {
+		super(SHORT_ABSTRACT_FILE, SortedSetFacetQwazrRecord.class);
 	}
 
 	@Override
-	public SortedSetFacetQwazrRecord apply(final TtlLineReader ttlLineReader) {
+	final public SortedSetFacetQwazrRecord apply(final TtlLineReader ttlLineReader) {
 		return new SortedSetFacetQwazrRecord(ttlLineReader);
 	}
 }

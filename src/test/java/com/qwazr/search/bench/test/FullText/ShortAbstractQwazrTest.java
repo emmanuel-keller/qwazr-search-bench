@@ -1,47 +1,47 @@
-/**
- * Copyright 2017 Emmanuel Keller / QWAZR
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.qwazr.search.bench.test.FullText;
 
-import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.bench.test.QwazrTest;
-import com.qwazr.search.bench.test.TtlLineReader;
-import org.junit.BeforeClass;
+import com.qwazr.search.bench.test.TestSettings;
+import com.qwazr.search.bench.TtlLineReader;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ShortAbstractQwazrTest extends QwazrTest<ShortAbstractQwazrRecord> {
+/**
+ * Created by ekeller on 15/02/2017.
+ */
+class ShortAbstractQwazrTest {
 
-	private static AnnotatedIndexService<ShortAbstractQwazrRecord> indexService;
+	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+	static class NoTaxonomy extends QwazrTest<ShortAbstractQwazrRecord.NoTaxonomy> {
 
-	@BeforeClass
-	public static void before() throws Exception {
-		QwazrTest.before();
-		indexService = indexManager.getService(ShortAbstractQwazrRecord.class);
-		indexService.createUpdateSchema();
-		indexService.createUpdateIndex();
-		indexService.createUpdateFields();
+		public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
+			QwazrTest.before(settingsBuilder.taxonomy(false));
+		}
+
+		NoTaxonomy() {
+			super(SHORT_ABSTRACT_FILE, ShortAbstractQwazrRecord.NoTaxonomy.class);
+		}
+
+		@Override
+		final public ShortAbstractQwazrRecord.NoTaxonomy apply(final TtlLineReader ttlLineReader) {
+			return new ShortAbstractQwazrRecord.NoTaxonomy(ttlLineReader);
+		}
 	}
 
-	public ShortAbstractQwazrTest() {
-		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT, indexService);
-	}
+	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+	static class WithTaxonomy extends QwazrTest<ShortAbstractQwazrRecord.WithTaxonomy> {
 
-	@Override
-	public ShortAbstractQwazrRecord apply(final TtlLineReader ttlLineReader) {
-		return new ShortAbstractQwazrRecord(ttlLineReader);
+		public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
+			QwazrTest.before(settingsBuilder.taxonomy(true));
+		}
+
+		WithTaxonomy() {
+			super(SHORT_ABSTRACT_FILE, ShortAbstractQwazrRecord.WithTaxonomy.class);
+		}
+
+		@Override
+		final public ShortAbstractQwazrRecord.WithTaxonomy apply(final TtlLineReader ttlLineReader) {
+			return new ShortAbstractQwazrRecord.WithTaxonomy(ttlLineReader);
+		}
 	}
 }

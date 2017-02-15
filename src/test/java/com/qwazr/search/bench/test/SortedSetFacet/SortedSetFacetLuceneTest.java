@@ -15,9 +15,10 @@
  */
 package com.qwazr.search.bench.test.SortedSetFacet;
 
-import com.qwazr.search.bench.test.LuceneRecord;
+import com.qwazr.search.bench.LuceneRecord;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.LuceneTest;
-import com.qwazr.search.bench.test.TtlLineReader;
+import com.qwazr.search.bench.test.TestSettings;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.facet.FacetsConfig;
@@ -27,11 +28,8 @@ import org.apache.lucene.util.BytesRef;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public abstract class SortedSetFacetLuceneTest extends LuceneTest<LuceneRecord> {
+abstract class SortedSetFacetLuceneTest extends LuceneTest<LuceneRecord> {
 
 	final static String URL = "url";
 	final static String PREDICATE = "predicate";
@@ -42,8 +40,12 @@ public abstract class SortedSetFacetLuceneTest extends LuceneTest<LuceneRecord> 
 		FACETS_CONFIG.setMultiValued(PREDICATE, true);
 	}
 
-	public SortedSetFacetLuceneTest() throws IOException, URISyntaxException {
+	SortedSetFacetLuceneTest() {
 		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT);
+	}
+
+	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
+		LuceneTest.before(settingsBuilder.taxonomy(false));
 	}
 
 	@Override

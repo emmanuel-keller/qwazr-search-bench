@@ -19,25 +19,46 @@ import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.bench.test.BaseQwazrRecord;
 import com.qwazr.search.bench.test.BaseTest;
-import com.qwazr.search.bench.test.TtlLineReader;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.field.FieldDefinition;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
-final public class ShortAbstractQwazrRecord extends BaseQwazrRecord {
+abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
 	final String shortAbstract;
 
-	public ShortAbstractQwazrRecord() {
+	ShortAbstractQwazrRecord() {
 		shortAbstract = null;
 	}
 
 	ShortAbstractQwazrRecord(final TtlLineReader line) {
 		super(line);
 		shortAbstract = line.object;
+	}
+
+	@Index(name = BaseTest.INDEX_NAME,
+			schema = BaseTest.SCHEMA_NAME,
+			ramBufferSize = BaseTest.RAM_BUFFER_SIZE,
+			enableTaxonomyIndex = true)
+	static class WithTaxonomy extends ShortAbstractQwazrRecord {
+
+		WithTaxonomy(final TtlLineReader line) {
+			super(line);
+		}
+	}
+
+	@Index(name = BaseTest.INDEX_NAME,
+			schema = BaseTest.SCHEMA_NAME,
+			ramBufferSize = BaseTest.RAM_BUFFER_SIZE,
+			enableTaxonomyIndex = false)
+	static class NoTaxonomy extends ShortAbstractQwazrRecord {
+
+		NoTaxonomy(final TtlLineReader line) {
+			super(line);
+		}
 	}
 }

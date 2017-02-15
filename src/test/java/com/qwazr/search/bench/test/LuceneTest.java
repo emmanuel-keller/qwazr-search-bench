@@ -15,6 +15,10 @@
  */
 package com.qwazr.search.bench.test;
 
+import com.qwazr.search.bench.LuceneCommonIndex;
+import com.qwazr.search.bench.LuceneNoTaxonomyIndex;
+import com.qwazr.search.bench.LuceneRecord;
+import com.qwazr.search.bench.LuceneWithTaxonomyIndex;
 import com.qwazr.utils.IOUtils;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.index.Term;
@@ -29,15 +33,19 @@ import java.io.IOException;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class LuceneTest<T extends LuceneRecord> extends BaseTest<T> {
 
-	protected static LuceneIndex luceneIndex;
+	protected static LuceneCommonIndex luceneIndex;
 
 	protected static final FacetsConfig FACETS_CONFIG = new FacetsConfig();
 
 	protected final LuceneRecord record = new LuceneRecord();
 
-	public static void before(final boolean withExecutor) throws Exception {
-		BaseTest.before(withExecutor);
-		luceneIndex = new LuceneIndex(indexDirectory, executor, RAM_BUFFER_SIZE);
+	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
+		BaseTest.before(settingsBuilder.build());
+		LuceneTest.luceneIndex = currentSettings.taxonomy ?
+				new LuceneWithTaxonomyIndex(indexDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
+						BaseTest.RAM_BUFFER_SIZE) :
+				new LuceneNoTaxonomyIndex(indexDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
+						BaseTest.RAM_BUFFER_SIZE);
 	}
 
 	@AfterClass
@@ -56,8 +64,7 @@ public abstract class LuceneTest<T extends LuceneRecord> extends BaseTest<T> {
 			if (record == null)
 				luceneIndex.commitAndPublish();
 			else
-				luceneIndex.indexWriter.updateDocument(record.termId,
-						FACETS_CONFIG.build(luceneIndex.taxonomyWriter, record.document));
+				luceneIndex.updateDocument(FACETS_CONFIG, record);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

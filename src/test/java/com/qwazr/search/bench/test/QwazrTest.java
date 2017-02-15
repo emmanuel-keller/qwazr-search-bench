@@ -20,12 +20,12 @@ import com.qwazr.search.index.IndexManager;
 import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.query.TermQuery;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +36,21 @@ public abstract class QwazrTest<T> extends BaseTest<T> {
 
 	private List<T> buffer;
 
-	@BeforeClass
-	public static void before() throws Exception {
-		BaseTest.before(true);
+	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
+		BaseTest.before(settingsBuilder.executor(true).build());
 		indexManager = new IndexManager(null, indexDirectory, executor);
+	}
+
+	static private <T> AnnotatedIndexService<T> createService(final Class<T> recordClass) {
+		try {
+			final AnnotatedIndexService<T> indexService = indexManager.getService(recordClass);
+			indexService.createUpdateSchema();
+			indexService.createUpdateIndex();
+			indexService.createUpdateFields();
+			return indexService;
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@AfterClass
@@ -50,9 +61,9 @@ public abstract class QwazrTest<T> extends BaseTest<T> {
 
 	private AnnotatedIndexService<T> indexService;
 
-	protected QwazrTest(File ttlFile, int batchSize, int limit, AnnotatedIndexService<T> indexService) {
-		super(ttlFile, batchSize, limit);
-		this.indexService = indexService;
+	protected QwazrTest(File ttlFile, Class<T> recordClass) {
+		super(ttlFile, BATCH_SIZE, LIMIT);
+		this.indexService = createService(recordClass);
 		this.buffer = new ArrayList<>();
 	}
 

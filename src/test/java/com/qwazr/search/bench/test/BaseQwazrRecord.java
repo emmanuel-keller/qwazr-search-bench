@@ -15,8 +15,8 @@
  */
 package com.qwazr.search.bench.test;
 
-import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.field.FieldDefinition;
 
 /**

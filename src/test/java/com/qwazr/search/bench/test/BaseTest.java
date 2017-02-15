@@ -16,6 +16,8 @@
 package com.qwazr.search.bench.test;
 
 import com.qwazr.profiler.ProfilerManager;
+import com.qwazr.search.bench.TtlLineReader;
+import com.qwazr.search.bench.TtlLoader;
 import com.qwazr.utils.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -59,6 +61,7 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 
 	static Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
 
+	protected static TestSettings currentSettings;
 	protected static ExecutorService executor;
 	protected static Path indexDirectory;
 
@@ -67,7 +70,9 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 		return val == null ? def : Integer.parseInt(val);
 	}
 
-	public static void before(boolean withExecutor) throws Exception {
+	public static void before(final TestSettings settings) throws Exception {
+
+		currentSettings = settings;
 
 		ProfilerManager.load(null);
 
@@ -88,7 +93,7 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 		}
 
 		indexDirectory = Files.createTempDirectory("QwazrSearchBench");
-		executor = withExecutor ? Executors.newCachedThreadPool() : null;
+		executor = settings.executor ? Executors.newCachedThreadPool() : null;
 	}
 
 	@AfterClass
@@ -96,12 +101,7 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 		if (executor != null)
 			executor.shutdown();
 		System.gc();
-		ProfilerManager.dump();
-		ProfilerManager.reset();
 	}
-
-	private final Consumer<T> doNothingConsumer = buffer -> {
-	};
 
 	private final TtlLoader<T> loader;
 	private final int limit;
@@ -111,23 +111,25 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 		this.limit = limit;
 	}
 
-	@Test
-	public void test100loadWarmupDoNothing() throws IOException {
-		loader.load(limit, this, doNothingConsumer);
-	}
-
 	private static long count;
 
 	@Test
-	public void test200LoadRealTest() throws IOException {
+	public void test100Test() throws IOException {
+		ProfilerManager.reset();
+		LOGGER.info(currentSettings.toString());
+		LOGGER.info("INDEX DIR: " + indexDirectory);
 		long time = System.currentTimeMillis();
 		count = loader.load(limit, this, this);
 		time = System.currentTimeMillis() - time;
-		final long rate = (count * 1000) / time;
-		LOGGER.info("###");
-		LOGGER.info("### " + getClass().getSimpleName());
-		LOGGER.info("Rate: " + rate);
-		LOGGER.info(count + " lines indexed");
+		final int rate = (int) ((count * 1000) / time);
+		if (!currentSettings.warmup) {
+			LOGGER.info("###");
+			LOGGER.info("### " + getClass().getSimpleName());
+			LOGGER.info("Rate: " + rate);
+			LOGGER.info(count + " lines indexed");
+			ProfilerManager.dump();
+			currentSettings.results.addResult(this, rate);
+		}
 	}
 
 	abstract long getNumDocs() throws IOException;
@@ -138,9 +140,13 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 	public void testZZZCheck() throws IOException {
 		Assert.assertEquals(count, getNumDocs());
 		final Path rootPath = indexDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
-		LOGGER.info("Index size: " + FileUtils.byteCountToDisplaySize(
-				FileUtils.sizeOf(rootPath.resolve("data").toFile()) + FileUtils.sizeOf(
-						rootPath.resolve("taxonomy").toFile())));
+		long size = FileUtils.sizeOf(rootPath.resolve("data").toFile());
+		if (currentSettings.taxonomy) {
+			Path taxoPath = rootPath.resolve("taxonomy");
+			size += FileUtils.sizeOf(taxoPath.toFile());
+		}
+		if (!currentSettings.warmup)
+			LOGGER.info("Index size: " + FileUtils.byteCountToDisplaySize(size));
 	}
 
 }

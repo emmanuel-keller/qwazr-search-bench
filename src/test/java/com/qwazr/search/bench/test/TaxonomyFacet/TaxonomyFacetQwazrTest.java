@@ -15,33 +15,25 @@
  */
 package com.qwazr.search.bench.test.TaxonomyFacet;
 
-import com.qwazr.search.annotations.AnnotatedIndexService;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.QwazrTest;
-import com.qwazr.search.bench.test.TtlLineReader;
-import org.junit.BeforeClass;
+import com.qwazr.search.bench.test.TestSettings;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class TaxonomyFacetQwazrTest extends QwazrTest<TaxonomyFacetQwazrRecord> {
+abstract class TaxonomyFacetQwazrTest extends QwazrTest<TaxonomyFacetQwazrRecord> {
 
-	private static AnnotatedIndexService<TaxonomyFacetQwazrRecord> indexService;
-
-	@BeforeClass
-	public static void before() throws Exception {
-		QwazrTest.before();
-		indexService = indexManager.getService(TaxonomyFacetQwazrRecord.class);
-		indexService.createUpdateSchema();
-		indexService.createUpdateIndex();
-		indexService.createUpdateFields();
+	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
+		QwazrTest.before(settingsBuilder.taxonomy(true));
 	}
 
-	public TaxonomyFacetQwazrTest() {
-		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT, indexService);
+	TaxonomyFacetQwazrTest() {
+		super(SHORT_ABSTRACT_FILE, TaxonomyFacetQwazrRecord.class);
 	}
 
 	@Override
-	public TaxonomyFacetQwazrRecord apply(final TtlLineReader ttlLineReader) {
+	final public TaxonomyFacetQwazrRecord apply(final TtlLineReader ttlLineReader) {
 		return new TaxonomyFacetQwazrRecord(ttlLineReader);
 	}
 }

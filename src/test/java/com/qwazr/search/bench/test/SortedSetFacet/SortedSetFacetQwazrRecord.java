@@ -19,19 +19,19 @@ import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.bench.test.BaseQwazrRecord;
 import com.qwazr.search.bench.test.BaseTest;
-import com.qwazr.search.bench.test.TtlLineReader;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.field.FieldDefinition;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
 @Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
-final public class SortedSetFacetQwazrRecord extends BaseQwazrRecord {
+final class SortedSetFacetQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.SortedSetDocValuesFacetField, facetMultivalued = true)
 	final String predicate;
 
-	public SortedSetFacetQwazrRecord() {
+	SortedSetFacetQwazrRecord() {
 		predicate = null;
 	}
 
