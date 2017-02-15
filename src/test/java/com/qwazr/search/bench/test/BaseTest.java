@@ -128,7 +128,7 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 			LOGGER.info("Rate: " + rate);
 			LOGGER.info(count + " lines indexed");
 			ProfilerManager.dump();
-			currentSettings.results.addResult(this, rate);
+			currentSettings.results.add(this, rate);
 		}
 	}
 

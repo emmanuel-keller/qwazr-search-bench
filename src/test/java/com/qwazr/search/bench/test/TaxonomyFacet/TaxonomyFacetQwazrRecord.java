@@ -25,7 +25,10 @@ import com.qwazr.search.field.FieldDefinition;
 /**
  * Created by ekeller on 01/01/2017.
  */
-@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
+@Index(name = BaseTest.INDEX_NAME,
+		schema = BaseTest.SCHEMA_NAME,
+		ramBufferSize = BaseTest.RAM_BUFFER_SIZE,
+		enableTaxonomyIndex = true)
 final class TaxonomyFacetQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.FacetField, facetMultivalued = true)

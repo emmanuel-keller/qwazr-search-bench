@@ -16,8 +16,8 @@ public class TestResults {
 		this.rates = new LinkedHashMap<>();
 	}
 
-	public void addResult(Object testClass, Integer rate) {
-		rates.put(testClass.getClass().getSimpleName(), rate);
+	public void add(Object testClass, Integer rate) {
+		rates.put(testClass.getClass().getName(), rate);
 	}
 
 	public void log(Logger logger) {
