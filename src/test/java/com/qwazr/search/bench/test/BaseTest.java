@@ -23,7 +23,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +39,23 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consumer<T> {
+@RunWith(Parameterized.class)
+public abstract class BaseTest implements Consumer<TtlLineReader> {
+
+	@Parameterized.Parameters
+	public static Collection<Boolean> parameters() {
+		return Arrays.asList(true, true, false, false, false);
+	}
+
+	@Parameterized.Parameter
+	public Boolean warmup;
 
 	public static final String SCHEMA_NAME = "schemaTest";
 
@@ -53,7 +65,7 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 
 	public static final int BATCH_SIZE = getEnvOrDefault("SEARCH_BENCH_BATCH_SIZE", 5000);
 
-	public static final int LIMIT = getEnvOrDefault("SEARCH_BENCH_LIMIT", 512000);
+	public static final int LIMIT = getEnvOrDefault("SEARCH_BENCH_LIMIT", 50000);
 
 	static final String SHORT_ABSTRACT_URL = "http://downloads.dbpedia.org/3.9/en/short_abstracts_en.ttl.bz2";
 
@@ -71,8 +83,6 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 	}
 
 	public static void before(final TestSettings settings) throws Exception {
-
-		currentSettings = settings;
 
 		ProfilerManager.load(null);
 
@@ -92,8 +102,9 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 			}
 		}
 
+		currentSettings = settings;
 		indexDirectory = Files.createTempDirectory("QwazrSearchBench");
-		executor = settings.executor ? Executors.newCachedThreadPool() : null;
+		executor = currentSettings.executor ? Executors.newCachedThreadPool() : null;
 	}
 
 	@AfterClass
@@ -103,11 +114,11 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 		System.gc();
 	}
 
-	private final TtlLoader<T> loader;
+	private final TtlLoader loader;
 	private final int limit;
 
-	BaseTest(File ttlFile, int batchSize, int limit) {
-		this.loader = new TtlLoader<>(ttlFile, batchSize);
+	BaseTest(File ttlFile, int limit) {
+		this.loader = new TtlLoader(ttlFile);
 		this.limit = limit;
 	}
 
@@ -119,12 +130,13 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 		LOGGER.info(currentSettings.toString());
 		LOGGER.info("INDEX DIR: " + indexDirectory);
 		long time = System.currentTimeMillis();
-		count = loader.load(limit, this, this);
+		count = loader.load(limit, this);
+		flush();
 		time = System.currentTimeMillis() - time;
 		final int rate = (int) ((count * 1000) / time);
-		if (!currentSettings.warmup) {
+		if (!warmup) {
 			LOGGER.info("###");
-			LOGGER.info("### " + getClass().getSimpleName());
+			LOGGER.info("### " + getClass().getName());
 			LOGGER.info("Rate: " + rate);
 			LOGGER.info(count + " lines indexed");
 			ProfilerManager.dump();
@@ -132,9 +144,9 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 		}
 	}
 
-	abstract long getNumDocs() throws IOException;
+	abstract void flush();
 
-	abstract long getHits(String field, String term) throws IOException;
+	abstract long getNumDocs() throws IOException;
 
 	@Test
 	public void testZZZCheck() throws IOException {
@@ -145,7 +157,7 @@ public abstract class BaseTest<T> implements Function<TtlLineReader, T>, Consume
 			Path taxoPath = rootPath.resolve("taxonomy");
 			size += FileUtils.sizeOf(taxoPath.toFile());
 		}
-		if (!currentSettings.warmup)
+		if (!warmup)
 			LOGGER.info("Index size: " + FileUtils.byteCountToDisplaySize(size));
 	}
 

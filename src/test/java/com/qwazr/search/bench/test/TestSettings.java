@@ -1,3 +1,18 @@
+/**
+ * Copyright 2017 Emmanuel Keller / QWAZR
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.qwazr.search.bench.test;
 
 /**
@@ -9,20 +24,17 @@ public class TestSettings {
 
 	final boolean executor;
 
-	final boolean warmup;
-
 	final TestResults results;
 
 	private TestSettings(Builder builder) {
 		this.results = builder.results;
 		this.taxonomy = builder.taxonomy;
 		this.executor = builder.executor;
-		this.warmup = builder.warmup;
 	}
 
 	@Override
 	public String toString() {
-		return "SETTINGS - Warmup: " + warmup + " - Executor: " + executor + " - Taxonomy: " + taxonomy;
+		return "SETTINGS - Executor: " + executor + " - Taxonomy: " + taxonomy;
 	}
 
 	public static Builder of(TestResults results) {
@@ -34,8 +46,6 @@ public class TestSettings {
 		private Boolean taxonomy = null;
 
 		private Boolean executor = null;
-
-		private Boolean warmup = null;
 
 		private final TestResults results;
 
@@ -50,11 +60,6 @@ public class TestSettings {
 
 		public Builder executor(boolean executor) {
 			this.executor = executor;
-			return this;
-		}
-
-		public Builder warmup(boolean warmup) {
-			this.warmup = warmup;
 			return this;
 		}
 

@@ -1,76 +1,56 @@
+/**
+ * Copyright 2017 Emmanuel Keller / QWAZR
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.qwazr.search.bench.test.SortedSetFacet;
 
 import com.qwazr.search.bench.test.CommonTestSuite;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.junit.runners.Suite;
 
 /**
  * Created by ekeller on 15/02/2017.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ SortedSetFacetTestSuite.LuceneNoExecutorWarmup.class,
-		SortedSetFacetTestSuite.LuceneNoExecutor.class,
-		SortedSetFacetTestSuite.LuceneWithExecutorWarmup.class,
+@Suite.SuiteClasses({ SortedSetFacetTestSuite.LuceneNoExecutor.class,
 		SortedSetFacetTestSuite.LuceneWithExecutor.class,
-		SortedSetFacetTestSuite.QwazrWarmup.class,
 		SortedSetFacetTestSuite.Qwazr.class })
 public class SortedSetFacetTestSuite extends CommonTestSuite {
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	public static class LuceneNoExecutorWarmup extends SortedSetFacetLuceneTest {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			SortedSetFacetLuceneTest.before(TestSettings.of(currentResults).warmup(true).executor(false));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	public static class LuceneNoExecutor extends SortedSetFacetLuceneTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			SortedSetFacetLuceneTest.before(TestSettings.of(currentResults).warmup(false).executor(false));
+			before(TestSettings.of(currentResults).executor(false));
 		}
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	public static class LuceneWithExecutorWarmup extends SortedSetFacetLuceneTest {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			SortedSetFacetLuceneTest.before(TestSettings.of(currentResults).warmup(true).executor(true));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	public static class LuceneWithExecutor extends SortedSetFacetLuceneTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			SortedSetFacetLuceneTest.before(TestSettings.of(currentResults).warmup(false).executor(true));
+			before(TestSettings.of(currentResults).executor(true));
 		}
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class QwazrWarmup extends SortedSetFacetQwazrTest {
+	public static class Qwazr extends SortedSetFacetQwazrTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			SortedSetFacetQwazrTest.before(TestSettings.of(currentResults).warmup(true));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class Qwazr extends SortedSetFacetQwazrTest {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			SortedSetFacetQwazrTest.before(TestSettings.of(currentResults).warmup(false));
+			before(TestSettings.of(currentResults));
 		}
 	}
 }

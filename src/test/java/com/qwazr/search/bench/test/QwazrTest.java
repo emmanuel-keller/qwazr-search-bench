@@ -17,8 +17,6 @@ package com.qwazr.search.bench.test;
 
 import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.index.IndexManager;
-import com.qwazr.search.index.QueryBuilder;
-import com.qwazr.search.query.TermQuery;
 import org.junit.AfterClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
@@ -30,11 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public abstract class QwazrTest<T> extends BaseTest<T> {
+public abstract class QwazrTest<T> extends BaseTest {
 
 	public static IndexManager indexManager;
 
 	private List<T> buffer;
+
+	private final int batchSize;
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		BaseTest.before(settingsBuilder.executor(true).build());
@@ -62,20 +62,25 @@ public abstract class QwazrTest<T> extends BaseTest<T> {
 	private AnnotatedIndexService<T> indexService;
 
 	protected QwazrTest(File ttlFile, Class<T> recordClass) {
-		super(ttlFile, BATCH_SIZE, LIMIT);
+		super(ttlFile, LIMIT);
 		this.indexService = createService(recordClass);
 		this.buffer = new ArrayList<>();
+		this.batchSize = BATCH_SIZE;
+	}
+
+	final public void index(final T record) {
+		buffer.add(record);
+		if (buffer.size() >= batchSize)
+			flush();
 	}
 
 	@Override
-	final public void accept(final T record) {
+	final public void flush() {
+		if (buffer.isEmpty())
+			return;
 		try {
-			if (record != null)
-				buffer.add(record);
-			else if (!buffer.isEmpty()) {
-				indexService.postDocuments(buffer);
-				buffer.clear();
-			}
+			indexService.postDocuments(buffer);
+			buffer.clear();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -84,11 +89,6 @@ public abstract class QwazrTest<T> extends BaseTest<T> {
 	@Override
 	long getNumDocs() throws IOException {
 		return indexService.getIndexStatus().num_docs;
-	}
-
-	@Override
-	long getHits(String field, String term) throws IOException {
-		return indexService.searchQuery(new QueryBuilder(new TermQuery(field, term)).rows(0).build()).getTotal_hits();
 	}
 
 }

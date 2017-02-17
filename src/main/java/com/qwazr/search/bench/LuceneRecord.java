@@ -30,4 +30,9 @@ final public class LuceneRecord {
 		this.document = new Document();
 	}
 
+	final public void reset(final Term termId) {
+		this.termId = termId;
+		document.clear();
+	}
+
 }

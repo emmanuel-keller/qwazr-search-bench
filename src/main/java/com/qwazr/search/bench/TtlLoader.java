@@ -24,27 +24,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-public class TtlLoader<T> {
+public class TtlLoader {
 
 	private final File ttlFile;
-	private final TtlLineReader lineReader;
-	private final int batchSize;
-	private int bufferSize;
 
-	public TtlLoader(File ttlFile, int batchSize) {
+	public TtlLoader(File ttlFile) {
 		this.ttlFile = ttlFile;
-		this.lineReader = new TtlLineReader();
-		this.batchSize = batchSize;
-		this.bufferSize = 0;
 	}
 
-	public int load(final int limit, final Function<TtlLineReader, T> function, final Consumer<T> consumer)
-			throws IOException {
+	public int load(final int limit, final Consumer<TtlLineReader> consumer) throws IOException {
 		int count = 0;
 		try (final FileInputStream fIn = new FileInputStream(ttlFile)) {
 			try (final BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(fIn, true)) {
@@ -54,17 +46,10 @@ public class TtlLoader<T> {
 						while ((line = br.readLine()) != null) {
 							if (line.startsWith("#")) // Ignore comments
 								continue;
-							lineReader.read(line);
-							consumer.accept(function.apply(lineReader));
-							if (++bufferSize == batchSize) {
-								consumer.accept(null);
-								bufferSize = 0;
-							}
+							consumer.accept(new TtlLineReader(line));
 							if (++count == limit)
 								break;
 						}
-						if (bufferSize > 0)
-							consumer.accept(null);
 						return count;
 					}
 				}

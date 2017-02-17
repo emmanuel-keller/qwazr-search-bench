@@ -1,137 +1,83 @@
+/**
+ * Copyright 2017 Emmanuel Keller / QWAZR
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.qwazr.search.bench.test.FullText;
 
 import com.qwazr.search.bench.test.CommonTestSuite;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.junit.runners.Suite;
 
 /**
  * Created by ekeller on 15/02/2017.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ ShortAbstractTestSuite.LuceneNoExecutorWithTaxonomyWarmup.class,
-		ShortAbstractTestSuite.LuceneNoExecutorWithTaxonomy.class,
-		ShortAbstractTestSuite.LuceneNoExecutorNoTaxonomyWarmup.class,
+@Suite.SuiteClasses({ ShortAbstractTestSuite.LuceneNoExecutorWithTaxonomy.class,
 		ShortAbstractTestSuite.LuceneNoExecutorNoTaxonomy.class,
-		ShortAbstractTestSuite.LuceneWithExecutorWithTaxonomyWarmup.class,
 		ShortAbstractTestSuite.LuceneWithExecutorWithTaxonomy.class,
-		ShortAbstractTestSuite.LuceneWithExecutorNoTaxonomyWarmup.class,
 		ShortAbstractTestSuite.LuceneWithExecutorNoTaxonomy.class,
-		ShortAbstractTestSuite.QwazrWithTaxonomyWarmup.class,
 		ShortAbstractTestSuite.QwazrWithTaxonomy.class,
-		ShortAbstractTestSuite.QwazrNoTaxonomyWarmup.class,
 		ShortAbstractTestSuite.QwazrNoTaxonomy.class })
 public class ShortAbstractTestSuite extends CommonTestSuite {
 
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class LuceneNoExecutorWithTaxonomyWarmup extends ShortAbstractLuceneTest {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(true).executor(false).taxonomy(true));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	static public class LuceneNoExecutorWithTaxonomy extends ShortAbstractLuceneTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(false).executor(false).taxonomy(true));
+			before(TestSettings.of(currentResults).executor(false).taxonomy(true));
 		}
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class LuceneNoExecutorNoTaxonomyWarmup extends ShortAbstractLuceneTest {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(true).executor(false).taxonomy(false));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	static public class LuceneNoExecutorNoTaxonomy extends ShortAbstractLuceneTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(false).executor(false).taxonomy(false));
+			before(TestSettings.of(currentResults).executor(false).taxonomy(false));
 		}
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class LuceneWithExecutorWithTaxonomyWarmup extends ShortAbstractLuceneTest {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(true).executor(true).taxonomy(true));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	static public class LuceneWithExecutorWithTaxonomy extends ShortAbstractLuceneTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(false).executor(true).taxonomy(true));
+			before(TestSettings.of(currentResults).executor(true).taxonomy(true));
 		}
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class LuceneWithExecutorNoTaxonomyWarmup extends ShortAbstractLuceneTest {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(true).executor(true).taxonomy(false));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	static public class LuceneWithExecutorNoTaxonomy extends ShortAbstractLuceneTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).warmup(false).executor(true).taxonomy(false));
+			before(TestSettings.of(currentResults).executor(true).taxonomy(false));
 		}
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class QwazrNoTaxonomyWarmup extends ShortAbstractQwazrTest.NoTaxonomy {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			ShortAbstractQwazrTest.NoTaxonomy.before(TestSettings.of(currentResults).warmup(true));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	static public class QwazrNoTaxonomy extends ShortAbstractQwazrTest.NoTaxonomy {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			ShortAbstractQwazrTest.NoTaxonomy.before(TestSettings.of(currentResults).warmup(false));
+			before(TestSettings.of(currentResults));
 		}
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static public class QwazrWithTaxonomyWarmup extends ShortAbstractQwazrTest.WithTaxonomy {
-
-		@BeforeClass
-		public static void before() throws Exception {
-			ShortAbstractQwazrTest.WithTaxonomy.before(TestSettings.of(currentResults).warmup(true));
-		}
-	}
-
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 	static public class QwazrWithTaxonomy extends ShortAbstractQwazrTest.WithTaxonomy {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			ShortAbstractQwazrTest.WithTaxonomy.before(TestSettings.of(currentResults).warmup(false));
+			before(TestSettings.of(currentResults));
 		}
 	}
 }

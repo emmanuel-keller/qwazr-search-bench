@@ -20,13 +20,13 @@ package com.qwazr.search.bench;
  */
 final public class TtlLineReader {
 
-	public String subject;
-	public String predicate;
-	public String object;
+	public final String subject;
+	public final String predicate;
+	public final String object;
 
 	private int searchPos;
 
-	public void read(final String line) {
+	TtlLineReader(final String line) {
 		searchPos = 0;
 		subject = next('<', '>', line);
 		predicate = next('<', '>', line);

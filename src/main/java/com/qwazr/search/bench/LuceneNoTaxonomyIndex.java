@@ -16,24 +16,13 @@
 package com.qwazr.search.bench;
 
 import com.qwazr.utils.IOUtils;
-import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.facet.FacetsConfig;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.SerialMergeScheduler;
-import org.apache.lucene.index.SnapshotDeletionPolicy;
-import org.apache.lucene.index.TieredMergePolicy;
 import org.apache.lucene.replicator.IndexRevision;
-import org.apache.lucene.replicator.LocalReplicator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
@@ -42,37 +31,19 @@ import java.util.concurrent.ExecutorService;
  */
 public class LuceneNoTaxonomyIndex extends LuceneCommonIndex {
 
-	final Directory dataDirectory;
-	final LocalReplicator localReplicator;
-	public final IndexWriter indexWriter;
-	public final SearcherManager searcherManager;
+	private final SearcherManager searcherManager;
 
 	public LuceneNoTaxonomyIndex(final Path rootDirectory, final String schemaName, final String indexName,
 			final ExecutorService executorService, final int ramBufferSize) throws IOException {
-
-		Path schemaDirectory = Files.createDirectory(rootDirectory.resolve(schemaName));
-		Path indexDirectory = Files.createDirectory(schemaDirectory.resolve(indexName));
-		this.dataDirectory = FSDirectory.open(indexDirectory.resolve("data"));
-		final IndexWriterConfig indexWriterConfig =
-				new IndexWriterConfig(new PerFieldAnalyzerWrapper(new StandardAnalyzer()));
-		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-		indexWriterConfig.setRAMBufferSizeMB(ramBufferSize);
-		indexWriterConfig.setMergeScheduler(new SerialMergeScheduler());
-		indexWriterConfig.setMergePolicy(new TieredMergePolicy());
-
-		// We use snapshots deletion policy
-		final SnapshotDeletionPolicy snapshotDeletionPolicy =
-				new SnapshotDeletionPolicy(indexWriterConfig.getIndexDeletionPolicy());
-		indexWriterConfig.setIndexDeletionPolicy(snapshotDeletionPolicy);
-
-		this.indexWriter = new IndexWriter(this.dataDirectory, indexWriterConfig);
+		super(rootDirectory, schemaName, indexName, ramBufferSize);
 		searcherManager = new SearcherManager(this.indexWriter,
 				executorService == null ? new SearcherFactory() : new MultiThreadSearcherFactory(executorService));
-		localReplicator = new LocalReplicator();
 	}
 
 	@Override
-	final public void commitAndPublish() throws IOException {
+	final synchronized public void commitAndPublish() throws IOException {
+		if (!indexWriter.hasUncommittedChanges())
+			return;
 		indexWriter.flush();
 		indexWriter.commit();
 		searcherManager.maybeRefresh();
@@ -90,8 +61,7 @@ public class LuceneNoTaxonomyIndex extends LuceneCommonIndex {
 	}
 
 	@Override
-	public <T extends LuceneRecord> void updateDocument(final FacetsConfig facetsConfig, final T record)
-			throws IOException {
+	final public void updateDocument(final FacetsConfig facetsConfig, final LuceneRecord record) throws IOException {
 		indexWriter.updateDocument(record.termId, facetsConfig.build(record.document));
 	}
 

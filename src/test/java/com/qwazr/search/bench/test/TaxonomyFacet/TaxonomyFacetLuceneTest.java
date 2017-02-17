@@ -29,7 +29,7 @@ import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-abstract class TaxonomyFacetLuceneTest extends LuceneTest<LuceneRecord> {
+abstract class TaxonomyFacetLuceneTest extends LuceneTest {
 
 	final static String URL = "url";
 	final static String PREDICATE = "predicate";
@@ -49,13 +49,11 @@ abstract class TaxonomyFacetLuceneTest extends LuceneTest<LuceneRecord> {
 	}
 
 	@Override
-	final public LuceneRecord apply(final TtlLineReader lineReader) {
+	final public void accept(final TtlLineReader lineReader, final LuceneRecord record) {
 		final BytesRef termBytesRef = new BytesRef(lineReader.subject);
-		record.termId = new Term(URL, termBytesRef);
-		record.document.clear();
+		record.reset(new Term(URL, termBytesRef));
 		record.document.add(new StringField(URL, termBytesRef, Field.Store.NO));
 		record.document.add(new FacetField(PREDICATE, lineReader.predicate));
-		return record;
 	}
 
 }

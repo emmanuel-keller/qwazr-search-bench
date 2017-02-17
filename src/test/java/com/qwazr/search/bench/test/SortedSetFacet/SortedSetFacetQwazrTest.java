@@ -33,7 +33,7 @@ abstract class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQwazrReco
 	}
 
 	@Override
-	final public SortedSetFacetQwazrRecord apply(final TtlLineReader ttlLineReader) {
-		return new SortedSetFacetQwazrRecord(ttlLineReader);
+	final public void accept(final TtlLineReader ttlLineReader) {
+		index(new SortedSetFacetQwazrRecord(ttlLineReader));
 	}
 }

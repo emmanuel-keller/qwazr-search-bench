@@ -16,24 +16,15 @@
 package com.qwazr.search.bench;
 
 import com.qwazr.utils.IOUtils;
-import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.facet.taxonomy.SearcherTaxonomyManager;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.SerialMergeScheduler;
-import org.apache.lucene.index.SnapshotDeletionPolicy;
-import org.apache.lucene.index.TieredMergePolicy;
 import org.apache.lucene.replicator.IndexAndTaxonomyRevision;
-import org.apache.lucene.replicator.LocalReplicator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
@@ -42,48 +33,33 @@ import java.util.concurrent.ExecutorService;
  */
 public class LuceneWithTaxonomyIndex extends LuceneCommonIndex {
 
-	final Directory dataDirectory;
-	final Directory taxonomyDirectory;
-	final LocalReplicator localReplicator;
-	public final IndexWriter indexWriter;
-	public final IndexAndTaxonomyRevision.SnapshotDirectoryTaxonomyWriter taxonomyWriter;
-	public final SearcherTaxonomyManager searcherTaxonomyManager;
+	private final Directory taxonomyDirectory;
+	private final IndexAndTaxonomyRevision.SnapshotDirectoryTaxonomyWriter taxonomyWriter;
+	private final SearcherTaxonomyManager searcherTaxonomyManager;
 
 	public LuceneWithTaxonomyIndex(final Path rootDirectory, final String schemaName, final String indexName,
 			final ExecutorService executorService, final int ramBufferSize) throws IOException {
+		super(rootDirectory, schemaName, indexName, ramBufferSize);
 
-		Path schemaDirectory = Files.createDirectory(rootDirectory.resolve(schemaName));
-		Path indexDirectory = Files.createDirectory(schemaDirectory.resolve(indexName));
-		this.dataDirectory = FSDirectory.open(indexDirectory.resolve("data"));
 		this.taxonomyDirectory = FSDirectory.open(indexDirectory.resolve("taxonomy"));
-		final IndexWriterConfig indexWriterConfig =
-				new IndexWriterConfig(new PerFieldAnalyzerWrapper(new StandardAnalyzer()));
-		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-		indexWriterConfig.setRAMBufferSizeMB(ramBufferSize);
-		indexWriterConfig.setMergeScheduler(new SerialMergeScheduler());
-		indexWriterConfig.setMergePolicy(new TieredMergePolicy());
-
-		// We use snapshots deletion policy
-		final SnapshotDeletionPolicy snapshotDeletionPolicy =
-				new SnapshotDeletionPolicy(indexWriterConfig.getIndexDeletionPolicy());
-		indexWriterConfig.setIndexDeletionPolicy(snapshotDeletionPolicy);
-
-		this.indexWriter = new IndexWriter(this.dataDirectory, indexWriterConfig);
 		this.taxonomyWriter = new IndexAndTaxonomyRevision.SnapshotDirectoryTaxonomyWriter(taxonomyDirectory);
 		searcherTaxonomyManager = new SearcherTaxonomyManager(this.indexWriter, true,
 				executorService == null ? new SearcherFactory() : new MultiThreadSearcherFactory(executorService),
 				this.taxonomyWriter);
-		localReplicator = new LocalReplicator();
 	}
 
 	@Override
-	final public void commitAndPublish() throws IOException {
-		taxonomyWriter.getIndexWriter().flush();
-		taxonomyWriter.commit();
-		indexWriter.flush();
-		indexWriter.commit();
-		searcherTaxonomyManager.maybeRefresh();
-		localReplicator.publish(new IndexAndTaxonomyRevision(indexWriter, taxonomyWriter));
+	final synchronized public void commitAndPublish() throws IOException {
+		final boolean hasTaxoChanges = taxonomyWriter.getIndexWriter().hasUncommittedChanges();
+		if (hasTaxoChanges)
+			taxonomyWriter.commit();
+		final boolean hasDataChanges = indexWriter.hasUncommittedChanges();
+		if (hasDataChanges)
+			indexWriter.commit();
+		if (hasTaxoChanges || hasDataChanges) {
+			searcherTaxonomyManager.maybeRefresh();
+			localReplicator.publish(new IndexAndTaxonomyRevision(indexWriter, taxonomyWriter));
+		}
 	}
 
 	@Override
@@ -97,8 +73,7 @@ public class LuceneWithTaxonomyIndex extends LuceneCommonIndex {
 	}
 
 	@Override
-	public <T extends LuceneRecord> void updateDocument(final FacetsConfig facetsConfig, final T record)
-			throws IOException {
+	final public void updateDocument(final FacetsConfig facetsConfig, final LuceneRecord record) throws IOException {
 		indexWriter.updateDocument(record.termId, facetsConfig.build(taxonomyWriter, record.document));
 	}
 

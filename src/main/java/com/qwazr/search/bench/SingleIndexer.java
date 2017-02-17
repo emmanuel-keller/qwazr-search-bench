@@ -13,32 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test;
+package com.qwazr.search.bench;
 
-import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-import org.slf4j.Logger;
+import org.apache.lucene.facet.FacetsConfig;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Created by ekeller on 15/02/2017.
  */
-public class TestResults {
+final public class SingleIndexer extends CommonIndexer {
 
-	final Map<String, SummaryStatistics> statsMap;
+	private final LuceneRecord luceneRecord;
 
-	public TestResults() {
-		this.statsMap = new LinkedHashMap<>();
+	public SingleIndexer(final LuceneCommonIndex luceneIndex, final FacetsConfig facetsConfig,
+			final BiConsumer<TtlLineReader, LuceneRecord> converter, final int batchSize) {
+		super(luceneIndex, facetsConfig, converter, batchSize);
+		luceneRecord = new LuceneRecord();
 	}
 
-	public void add(Object testClass, Integer rate) {
-		statsMap.computeIfAbsent(testClass.getClass().getName(), (key) -> new SummaryStatistics()).addValue(rate);
-	}
-
-	public void log(Logger logger) {
-		statsMap.forEach((clazz, stats) -> logger.info(
-				clazz + "- mean: " + (int) stats.getMean() + " - dev: " + (int) stats.getStandardDeviation()));
+	@Override
+	final public void accept(final TtlLineReader line) {
+		index(line, luceneRecord);
+		checkCommit();
 	}
 
 }

@@ -33,7 +33,7 @@ abstract class TaxonomyFacetQwazrTest extends QwazrTest<TaxonomyFacetQwazrRecord
 	}
 
 	@Override
-	final public TaxonomyFacetQwazrRecord apply(final TtlLineReader ttlLineReader) {
-		return new TaxonomyFacetQwazrRecord(ttlLineReader);
+	final public void accept(final TtlLineReader ttlLineReader) {
+		index(new TaxonomyFacetQwazrRecord(ttlLineReader));
 	}
 }
