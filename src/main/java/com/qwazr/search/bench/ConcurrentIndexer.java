@@ -15,6 +15,7 @@
  */
 package com.qwazr.search.bench;
 
+import com.qwazr.utils.concurrent.ConcurrentQueue;
 import org.apache.lucene.facet.FacetsConfig;
 
 import java.util.concurrent.ExecutorService;
@@ -43,7 +44,6 @@ public class ConcurrentIndexer extends CommonIndexer {
 
 	@Override
 	final public void accept(final TtlLineReader entry) {
-		checkCommit();
 		queue.accept(entry);
 	}
 
@@ -57,10 +57,10 @@ public class ConcurrentIndexer extends CommonIndexer {
 		}
 	}
 
-	class Queue extends ConcurrentConsumer<TtlLineReader> {
+	class Queue extends ConcurrentQueue<TtlLineReader> {
 
 		private Queue(ExecutorService executor) {
-			super(executor, Runtime.getRuntime().availableProcessors());
+			super(executor, Runtime.getRuntime().availableProcessors(), TtlLineReader.EMPTY);
 		}
 
 		@Override

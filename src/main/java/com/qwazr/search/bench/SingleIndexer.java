@@ -35,7 +35,6 @@ final public class SingleIndexer extends CommonIndexer {
 	@Override
 	final public void accept(final TtlLineReader line) {
 		index(line, luceneRecord);
-		checkCommit();
 	}
 
 }

@@ -19,7 +19,7 @@ import org.apache.lucene.facet.FacetsConfig;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -32,8 +32,8 @@ public abstract class CommonIndexer implements Consumer<TtlLineReader>, Closeabl
 	private final FacetsConfig facetsConfig;
 	private final BiConsumer<TtlLineReader, LuceneRecord> converter;
 	private final int batchSize;
-	private final AtomicInteger totalCount;
-	private volatile int nextCommit;
+	private int batchCount;
+	private final ReentrantLock batchLock = new ReentrantLock();
 
 	CommonIndexer(final LuceneCommonIndex luceneIndex, final FacetsConfig facetsConfig,
 			final BiConsumer<TtlLineReader, LuceneRecord> converter, final int batchSize) {
@@ -41,20 +41,7 @@ public abstract class CommonIndexer implements Consumer<TtlLineReader>, Closeabl
 		this.facetsConfig = facetsConfig;
 		this.converter = converter;
 		this.batchSize = batchSize;
-		totalCount = new AtomicInteger();
-		nextCommit = batchSize;
-	}
-
-	final void checkCommit() {
-		try {
-			final int count = totalCount.get();
-			if (count >= nextCommit) {
-				luceneIndex.commitAndPublish();
-				nextCommit = count + batchSize;
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		this.batchCount = 0;
 	}
 
 	@Override
@@ -70,7 +57,15 @@ public abstract class CommonIndexer implements Consumer<TtlLineReader>, Closeabl
 		converter.accept(line, luceneRecord);
 		try {
 			luceneIndex.updateDocument(facetsConfig, luceneRecord);
-			totalCount.incrementAndGet();
+			batchLock.lock();
+			try {
+				if (++batchCount >= batchSize) {
+					luceneIndex.commitAndPublish();
+					batchCount = 0;
+				}
+			} finally {
+				batchLock.unlock();
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

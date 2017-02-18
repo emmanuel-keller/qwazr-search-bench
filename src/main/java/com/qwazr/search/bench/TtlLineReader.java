@@ -20,6 +20,8 @@ package com.qwazr.search.bench;
  */
 final public class TtlLineReader {
 
+	public final static TtlLineReader EMPTY = new TtlLineReader("<><>\"\"");
+
 	public final String subject;
 	public final String predicate;
 	public final String object;
