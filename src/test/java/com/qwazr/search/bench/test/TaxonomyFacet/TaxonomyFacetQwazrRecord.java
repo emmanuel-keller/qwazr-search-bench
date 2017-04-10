@@ -29,12 +29,12 @@ import com.qwazr.search.field.FieldDefinition;
 		schema = BaseTest.SCHEMA_NAME,
 		ramBufferSize = BaseTest.RAM_BUFFER_SIZE,
 		enableTaxonomyIndex = true)
-final class TaxonomyFacetQwazrRecord extends BaseQwazrRecord {
+final public class TaxonomyFacetQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.FacetField, facetMultivalued = true)
 	final String predicate;
 
-	TaxonomyFacetQwazrRecord() {
+	public TaxonomyFacetQwazrRecord() {
 		predicate = null;
 	}
 

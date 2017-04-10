@@ -26,7 +26,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 /**
  * Created by ekeller on 01/01/2017.
  */
-abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
+public abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
 	final String shortAbstract;
@@ -44,7 +44,10 @@ abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
 			schema = BaseTest.SCHEMA_NAME,
 			ramBufferSize = BaseTest.RAM_BUFFER_SIZE,
 			enableTaxonomyIndex = true)
-	static class WithTaxonomy extends ShortAbstractQwazrRecord {
+	public static class WithTaxonomy extends ShortAbstractQwazrRecord {
+
+		public WithTaxonomy() {
+		}
 
 		WithTaxonomy(final TtlLineReader line) {
 			super(line);
@@ -55,7 +58,10 @@ abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
 			schema = BaseTest.SCHEMA_NAME,
 			ramBufferSize = BaseTest.RAM_BUFFER_SIZE,
 			enableTaxonomyIndex = false)
-	static class NoTaxonomy extends ShortAbstractQwazrRecord {
+	public static class NoTaxonomy extends ShortAbstractQwazrRecord {
+
+		public NoTaxonomy() {
+		}
 
 		NoTaxonomy(final TtlLineReader line) {
 			super(line);

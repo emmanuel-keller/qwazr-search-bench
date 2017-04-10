@@ -38,7 +38,7 @@ public abstract class QwazrTest<T> extends BaseTest {
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		BaseTest.before(settingsBuilder.executor(true).build());
-		indexManager = new IndexManager(null, indexDirectory, executor);
+		indexManager = new IndexManager(indexDirectory, executor);
 	}
 
 	static private <T> AnnotatedIndexService<T> createService(final Class<T> recordClass) {

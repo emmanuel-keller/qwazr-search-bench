@@ -26,12 +26,12 @@ import com.qwazr.search.field.FieldDefinition;
  * Created by ekeller on 01/01/2017.
  */
 @Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
-final class SortedSetFacetQwazrRecord extends BaseQwazrRecord {
+final public class SortedSetFacetQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.SortedSetDocValuesFacetField, facetMultivalued = true)
 	final String predicate;
 
-	SortedSetFacetQwazrRecord() {
+	public SortedSetFacetQwazrRecord() {
 		predicate = null;
 	}
 
