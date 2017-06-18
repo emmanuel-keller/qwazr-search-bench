@@ -140,7 +140,8 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 			LOGGER.info("Rate: " + rate);
 			LOGGER.info(count + " lines indexed");
 			ProfilerManager.dump();
-			currentSettings.results.add(this, rate);
+			if (currentSettings.results != null)
+				currentSettings.results.add(this, rate);
 		}
 	}
 
