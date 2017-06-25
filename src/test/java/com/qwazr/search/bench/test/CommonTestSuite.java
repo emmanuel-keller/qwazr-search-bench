@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +15,15 @@
  */
 package com.qwazr.search.bench.test;
 
+import com.qwazr.utils.LoggerUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * Created by ekeller on 15/02/2017.
- */
+import java.util.logging.Logger;
+
 public abstract class CommonTestSuite {
 
-	public final static Logger LOGGER = LoggerFactory.getLogger(CommonTestSuite.class);
+	public final static Logger LOGGER = LoggerUtils.getLogger(CommonTestSuite.class);
 
 	public static TestResults currentResults;
 

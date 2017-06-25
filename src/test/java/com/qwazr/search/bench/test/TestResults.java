@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +16,11 @@
 package com.qwazr.search.bench.test;
 
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
-import org.slf4j.Logger;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
-/**
- * Created by ekeller on 15/02/2017.
- */
 public class TestResults {
 
 	final Map<String, SummaryStatistics> statsMap;
@@ -38,7 +35,7 @@ public class TestResults {
 
 	public void log(Logger logger) {
 		statsMap.forEach((clazz, stats) -> logger.info(
-				clazz + "- mean: " + (int) stats.getMean() + " - dev: " + (int) stats.getStandardDeviation()));
+				() -> clazz + "- mean: " + (int) stats.getMean() + " - dev: " + (int) stats.getStandardDeviation()));
 	}
 
 }

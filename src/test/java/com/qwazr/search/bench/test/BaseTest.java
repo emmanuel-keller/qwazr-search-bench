@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@ import com.qwazr.profiler.ProfilerManager;
 import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.TtlLoader;
 import com.qwazr.utils.FileUtils;
+import com.qwazr.utils.LoggerUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -26,8 +27,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -44,6 +43,7 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(Parameterized.class)
@@ -71,7 +71,7 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 
 	public static final File SHORT_ABSTRACT_FILE = new File("data/short_abstracts_en.ttl.bz2");
 
-	static Logger LOGGER = LoggerFactory.getLogger(BaseTest.class);
+	static Logger LOGGER = LoggerUtils.getLogger(BaseTest.class);
 
 	protected static TestSettings currentSettings;
 	protected static ExecutorService executor;
