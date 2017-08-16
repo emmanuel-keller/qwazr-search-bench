@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,10 +41,11 @@ import java.util.concurrent.ExecutorService;
  */
 abstract public class LuceneCommonIndex implements Closeable {
 
-	private final static int MAX_SSD_MERGE_THREADS = Math.max(1,
-			Math.min(4, Runtime.getRuntime().availableProcessors() / 2));
+	private final static int MAX_SSD_MERGE_THREADS =
+			Math.max(1, Math.min(4, Runtime.getRuntime().availableProcessors() / 2));
 
 	final Path indexDirectory;
+	final Path luceneDirectory;
 	final Directory dataDirectory;
 	final LocalReplicator localReplicator;
 	final IndexWriter indexWriter;
@@ -54,10 +55,10 @@ abstract public class LuceneCommonIndex implements Closeable {
 
 		final Path schemaDirectory = Files.createDirectory(rootDirectory.resolve(schemaName));
 		this.indexDirectory = Files.createDirectory(schemaDirectory.resolve(indexName));
-
-		this.dataDirectory = FSDirectory.open(indexDirectory.resolve("data"));
-		final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(
-				new PerFieldAnalyzerWrapper(new StandardAnalyzer()));
+		this.luceneDirectory = indexDirectory.resolve("data");
+		this.dataDirectory = FSDirectory.open(luceneDirectory);
+		final IndexWriterConfig indexWriterConfig =
+				new IndexWriterConfig(new PerFieldAnalyzerWrapper(new StandardAnalyzer()));
 		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
 		indexWriterConfig.setRAMBufferSizeMB(ramBufferSize);
 		final ConcurrentMergeScheduler mergeScheduler = new ConcurrentMergeScheduler();
@@ -66,12 +67,26 @@ abstract public class LuceneCommonIndex implements Closeable {
 		indexWriterConfig.setMergePolicy(new TieredMergePolicy());
 
 		// We use snapshots deletion policy
-		final SnapshotDeletionPolicy snapshotDeletionPolicy = new SnapshotDeletionPolicy(
-				indexWriterConfig.getIndexDeletionPolicy());
+		final SnapshotDeletionPolicy snapshotDeletionPolicy =
+				new SnapshotDeletionPolicy(indexWriterConfig.getIndexDeletionPolicy());
 		indexWriterConfig.setIndexDeletionPolicy(snapshotDeletionPolicy);
 
 		this.indexWriter = new IndexWriter(this.dataDirectory, indexWriterConfig);
 		this.localReplicator = new LocalReplicator();
+	}
+
+	public Path getLuceneDirectory() {
+		return luceneDirectory;
+	}
+
+	/**
+	 * Return for each file the last modified date, length and checksum
+	 *
+	 * @return a new map with the metadata
+	 * @throws IOException
+	 */
+	public IndexFiles getIndexFiles() throws IOException {
+		return new IndexFiles(luceneDirectory);
 	}
 
 	abstract public void commitAndPublish() throws IOException;
