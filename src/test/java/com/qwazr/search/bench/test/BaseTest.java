@@ -61,8 +61,6 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 
 	public static final String INDEX_NAME = "indexTest";
 
-	public static final int RAM_BUFFER_SIZE = 256;
-
 	public static final int BATCH_SIZE = getEnvOrDefault("SEARCH_BENCH_BATCH_SIZE", 5000);
 
 	public static final int LIMIT = getEnvOrDefault("SEARCH_BENCH_LIMIT", 50000);

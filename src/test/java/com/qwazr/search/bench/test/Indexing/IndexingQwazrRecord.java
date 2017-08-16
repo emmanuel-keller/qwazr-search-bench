@@ -13,51 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test.FullText;
+package com.qwazr.search.bench.test.Indexing;
 
 import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.BaseQwazrRecord;
 import com.qwazr.search.bench.test.BaseTest;
-import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.field.FieldDefinition;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-public abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
+public abstract class IndexingQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
 	final String shortAbstract;
 
-	ShortAbstractQwazrRecord() {
+	IndexingQwazrRecord() {
 		shortAbstract = null;
 	}
 
-	ShortAbstractQwazrRecord(final TtlLineReader line) {
+	IndexingQwazrRecord(final TtlLineReader line) {
 		super(line);
 		shortAbstract = line.object;
 	}
 
-	@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, enableTaxonomyIndex = true)
-	public static class WithTaxonomy extends ShortAbstractQwazrRecord {
+	@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME)
+	public static class DefaultRamBuffer extends IndexingQwazrRecord {
 
-		public WithTaxonomy() {
+		public DefaultRamBuffer() {
 		}
 
-		WithTaxonomy(final TtlLineReader line) {
+		DefaultRamBuffer(final TtlLineReader line) {
 			super(line);
 		}
 	}
 
-	@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, enableTaxonomyIndex = false)
-	public static class NoTaxonomy extends ShortAbstractQwazrRecord {
+	@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = 2048)
+	public static class HighRamBuffer extends IndexingQwazrRecord {
 
-		public NoTaxonomy() {
+		public HighRamBuffer() {
 		}
 
-		NoTaxonomy(final TtlLineReader line) {
+		HighRamBuffer(final TtlLineReader line) {
 			super(line);
 		}
 	}

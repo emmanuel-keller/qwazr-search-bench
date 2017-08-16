@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,7 @@ public class LuceneWithTaxonomyIndex extends LuceneCommonIndex {
 	private final SearcherTaxonomyManager searcherTaxonomyManager;
 
 	public LuceneWithTaxonomyIndex(final Path rootDirectory, final String schemaName, final String indexName,
-			final ExecutorService executorService, final int ramBufferSize) throws IOException {
+			final ExecutorService executorService, final double ramBufferSize) throws IOException {
 		super(rootDirectory, schemaName, indexName, ramBufferSize);
 
 		this.taxonomyDirectory = FSDirectory.open(indexDirectory.resolve("taxonomy"));

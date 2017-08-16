@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,10 +25,7 @@ import com.qwazr.search.field.FieldDefinition;
 /**
  * Created by ekeller on 01/01/2017.
  */
-@Index(name = BaseTest.INDEX_NAME,
-		schema = BaseTest.SCHEMA_NAME,
-		ramBufferSize = BaseTest.RAM_BUFFER_SIZE,
-		enableTaxonomyIndex = true)
+@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, enableTaxonomyIndex = true)
 final public class TaxonomyFacetQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.FacetField, facetMultivalued = true)

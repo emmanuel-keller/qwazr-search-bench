@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ import com.qwazr.search.field.FieldDefinition;
 /**
  * Created by ekeller on 01/01/2017.
  */
-@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = BaseTest.RAM_BUFFER_SIZE)
+@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME)
 final public class SortedSetFacetQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.SortedSetDocValuesFacetField, facetMultivalued = true)

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,12 +40,13 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 	protected final CommonIndexer indexer;
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
-		BaseTest.before(settingsBuilder.build());
+		final TestSettings settings = settingsBuilder.build();
+		BaseTest.before(settings);
 		LuceneTest.luceneIndex = currentSettings.taxonomy ?
 				new LuceneWithTaxonomyIndex(indexDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
-						BaseTest.RAM_BUFFER_SIZE) :
+						settings.getRamBuffer()) :
 				new LuceneNoTaxonomyIndex(indexDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
-						BaseTest.RAM_BUFFER_SIZE);
+						settings.getRamBuffer());
 	}
 
 	@AfterClass
@@ -66,9 +67,8 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 
 	protected LuceneTest(File ttlFile, int batchSize, int limit) {
 		super(ttlFile, limit);
-		indexer = currentSettings.executor ?
-				new ConcurrentIndexer(executor, luceneIndex, FACETS_CONFIG, this, batchSize) :
-				new SingleIndexer(luceneIndex, FACETS_CONFIG, this, batchSize);
+		indexer = currentSettings.executor ? new ConcurrentIndexer(executor, luceneIndex, FACETS_CONFIG, this,
+				batchSize) : new SingleIndexer(luceneIndex, FACETS_CONFIG, this, batchSize);
 	}
 
 	@Override

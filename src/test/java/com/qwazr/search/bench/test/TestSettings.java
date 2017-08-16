@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,26 +15,38 @@
  */
 package com.qwazr.search.bench.test;
 
+import org.apache.lucene.index.IndexWriterConfig;
+
 /**
  * Created by ekeller on 15/02/2017.
  */
 public class TestSettings {
 
+	public static final double HIGH_RAM_BUFFER = 2048;
+
 	final boolean taxonomy;
 
 	final boolean executor;
+
+	final boolean highRamBuffer;
 
 	final TestResults results;
 
 	private TestSettings(Builder builder) {
 		this.results = builder.results;
-		this.taxonomy = builder.taxonomy;
+		this.taxonomy = builder.taxonomy == null ? false : builder.taxonomy;
 		this.executor = builder.executor;
+		this.highRamBuffer = builder.highRamBuffer == null ? false : builder.highRamBuffer;
+	}
+
+	double getRamBuffer() {
+		return highRamBuffer ? HIGH_RAM_BUFFER : IndexWriterConfig.DEFAULT_RAM_BUFFER_SIZE_MB;
 	}
 
 	@Override
 	public String toString() {
-		return "SETTINGS - Executor: " + executor + " - Taxonomy: " + taxonomy;
+		return "SETTINGS - Executor: " + executor + " - Taxonomy: " + taxonomy + " - RamBuffer: " + getRamBuffer() +
+				"MB";
 	}
 
 	public static Builder of(TestResults results) {
@@ -46,6 +58,8 @@ public class TestSettings {
 		private Boolean taxonomy = null;
 
 		private Boolean executor = null;
+
+		private Boolean highRamBuffer = null;
 
 		private final TestResults results;
 
@@ -60,6 +74,11 @@ public class TestSettings {
 
 		public Builder executor(boolean executor) {
 			this.executor = executor;
+			return this;
+		}
+
+		public Builder highRamBuffer(boolean highRamBuffer) {
+			this.highRamBuffer = highRamBuffer;
 			return this;
 		}
 
