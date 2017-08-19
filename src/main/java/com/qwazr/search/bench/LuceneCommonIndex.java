@@ -61,10 +61,14 @@ abstract public class LuceneCommonIndex implements Closeable {
 				new IndexWriterConfig(new PerFieldAnalyzerWrapper(new StandardAnalyzer()));
 		indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
 		indexWriterConfig.setRAMBufferSizeMB(ramBufferSize);
+
 		final ConcurrentMergeScheduler mergeScheduler = new ConcurrentMergeScheduler();
 		mergeScheduler.setMaxMergesAndThreads(MAX_SSD_MERGE_THREADS, MAX_SSD_MERGE_THREADS);
 		indexWriterConfig.setMergeScheduler(mergeScheduler);
-		indexWriterConfig.setMergePolicy(new TieredMergePolicy());
+		indexWriterConfig.setUseCompoundFile(false);
+
+		final TieredMergePolicy mergePolicy = new TieredMergePolicy();
+		indexWriterConfig.setMergePolicy(mergePolicy);
 
 		// We use snapshots deletion policy
 		final SnapshotDeletionPolicy snapshotDeletionPolicy =
@@ -75,10 +79,6 @@ abstract public class LuceneCommonIndex implements Closeable {
 		this.localReplicator = new LocalReplicator();
 	}
 
-	public Path getLuceneDirectory() {
-		return luceneDirectory;
-	}
-
 	/**
 	 * Return for each file the last modified date, length and checksum
 	 *
@@ -86,7 +86,7 @@ abstract public class LuceneCommonIndex implements Closeable {
 	 * @throws IOException
 	 */
 	public IndexFiles getIndexFiles() throws IOException {
-		return new IndexFiles(luceneDirectory);
+		return new IndexFiles(luceneDirectory, dataDirectory);
 	}
 
 	abstract public void commitAndPublish() throws IOException;

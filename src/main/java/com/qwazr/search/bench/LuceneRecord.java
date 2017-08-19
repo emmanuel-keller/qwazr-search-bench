@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package com.qwazr.search.bench;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 
 /**
@@ -30,9 +31,12 @@ final public class LuceneRecord {
 		this.document = new Document();
 	}
 
-	final public void reset(final Term termId) {
+	final public void reset(final Term termId, final IndexableField... fields) {
 		this.termId = termId;
 		document.clear();
+		if (fields != null)
+			for (IndexableField field : fields)
+				document.add(field);
 	}
 
 }

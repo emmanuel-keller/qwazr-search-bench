@@ -62,7 +62,8 @@ public class LuceneNoTaxonomyIndex extends LuceneCommonIndex {
 
 	@Override
 	final public void updateDocument(final FacetsConfig facetsConfig, final LuceneRecord record) throws IOException {
-		indexWriter.updateDocument(record.termId, facetsConfig.build(record.document));
+		indexWriter.updateDocument(record.termId,
+				facetsConfig == null ? record.document : facetsConfig.build(record.document));
 	}
 
 	@Override
