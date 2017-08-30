@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ abstract class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQwazrReco
 	}
 
 	SortedSetFacetQwazrTest() {
-		super(SHORT_ABSTRACT_FILE, SortedSetFacetQwazrRecord.class);
+		super(SortedSetFacetQwazrRecord.class);
 	}
 
 	@Override

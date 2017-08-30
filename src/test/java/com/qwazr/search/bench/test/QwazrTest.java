@@ -21,24 +21,21 @@ import org.junit.AfterClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public abstract class QwazrTest<T> extends BaseTest {
+public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 
 	public static IndexManager indexManager;
 
 	private List<T> buffer;
-
-	private final int batchSize;
-
+	
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		BaseTest.before(settingsBuilder.executor(true).build());
-		indexManager = new IndexManager(indexDirectory, executor);
+		indexManager = new IndexManager(schemaDirectory, executor);
 	}
 
 	static private <T> AnnotatedIndexService<T> createService(final Class<T> recordClass) {
@@ -59,18 +56,21 @@ public abstract class QwazrTest<T> extends BaseTest {
 		BaseTest.after();
 	}
 
-	private AnnotatedIndexService<T> indexService;
+	private final List<AnnotatedIndexService<?>> indexServices;
+	private final AnnotatedIndexService<T> indexService;
 
-	protected QwazrTest(File ttlFile, Class<T> recordClass) {
-		super(ttlFile, LIMIT);
-		this.indexService = createService(recordClass);
+	protected QwazrTest(Class<T> masterRecordClass, Class<?>... optionalRecordClasses) {
+		this.indexServices = new ArrayList<>();
+		if (optionalRecordClasses != null)
+			for (Class<?> recordClass : optionalRecordClasses)
+				indexServices.add(createService(recordClass));
+		this.indexService = createService(masterRecordClass);
 		this.buffer = new ArrayList<>();
-		this.batchSize = BATCH_SIZE;
 	}
 
 	final public void index(final T record) {
 		buffer.add(record);
-		if (buffer.size() >= batchSize)
+		if (buffer.size() >= currentSettings.batchSize)
 			flush();
 	}
 

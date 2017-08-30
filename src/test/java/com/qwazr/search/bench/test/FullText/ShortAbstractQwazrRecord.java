@@ -29,13 +29,13 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 public abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
-	final String shortAbstract;
+	protected final String shortAbstract;
 
-	ShortAbstractQwazrRecord() {
+	protected ShortAbstractQwazrRecord() {
 		shortAbstract = null;
 	}
 
-	ShortAbstractQwazrRecord(final TtlLineReader line) {
+	protected ShortAbstractQwazrRecord(final TtlLineReader line) {
 		super(line);
 		shortAbstract = line.object;
 	}

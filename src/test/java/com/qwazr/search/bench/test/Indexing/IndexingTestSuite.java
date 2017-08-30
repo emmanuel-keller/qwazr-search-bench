@@ -19,7 +19,11 @@ import com.qwazr.search.bench.test.CommonTestSuite;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Created by ekeller on 15/02/2017.
@@ -32,6 +36,11 @@ import org.junit.runners.Suite;
 		IndexingTestSuite.QwazrLowRamBuffer.class,
 		IndexingTestSuite.QwazrHighRamBuffer.class })
 public class IndexingTestSuite extends CommonTestSuite {
+
+	@Parameterized.Parameters
+	public static Collection<Boolean> iterations() {
+		return Arrays.asList(true, false);
+	}
 
 	static public class LuceneNoExecutorLowRamBuffer extends IndexingLuceneTest {
 

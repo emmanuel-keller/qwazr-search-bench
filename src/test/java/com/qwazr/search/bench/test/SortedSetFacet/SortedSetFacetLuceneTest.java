@@ -40,10 +40,6 @@ abstract class SortedSetFacetLuceneTest extends LuceneTest {
 		FACETS_CONFIG.setMultiValued(PREDICATE, true);
 	}
 
-	SortedSetFacetLuceneTest() {
-		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT);
-	}
-
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		LuceneTest.before(settingsBuilder.taxonomy(false));
 	}

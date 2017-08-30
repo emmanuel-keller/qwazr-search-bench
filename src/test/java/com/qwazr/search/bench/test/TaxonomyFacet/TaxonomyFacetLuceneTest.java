@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,10 +38,6 @@ abstract class TaxonomyFacetLuceneTest extends LuceneTest {
 
 	static {
 		FACETS_CONFIG.setMultiValued(PREDICATE, true);
-	}
-
-	TaxonomyFacetLuceneTest() {
-		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT);
 	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {

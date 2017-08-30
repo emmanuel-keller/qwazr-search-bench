@@ -27,7 +27,6 @@ import com.qwazr.utils.IOUtils;
 import org.apache.lucene.facet.FacetsConfig;
 import org.junit.AfterClass;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.function.BiConsumer;
 
@@ -43,9 +42,9 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 		final TestSettings settings = settingsBuilder.build();
 		BaseTest.before(settings);
 		LuceneTest.luceneIndex = currentSettings.taxonomy ?
-				new LuceneWithTaxonomyIndex(indexDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
+				new LuceneWithTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
 						settings.getRamBuffer()) :
-				new LuceneNoTaxonomyIndex(indexDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
+				new LuceneNoTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
 						settings.getRamBuffer());
 	}
 
@@ -65,10 +64,10 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 		indexer.close();
 	}
 
-	protected LuceneTest(File ttlFile, int batchSize, int limit) {
-		super(ttlFile, limit);
-		indexer = currentSettings.executor ? new ConcurrentIndexer(executor, luceneIndex, FACETS_CONFIG, this,
-				batchSize) : new SingleIndexer(luceneIndex, FACETS_CONFIG, this, batchSize);
+	protected LuceneTest() {
+		indexer = currentSettings.executor ?
+				new ConcurrentIndexer(executor, luceneIndex, FACETS_CONFIG, this, currentSettings.batchSize) :
+				new SingleIndexer(luceneIndex, FACETS_CONFIG, this, currentSettings.batchSize);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,7 @@ class ShortAbstractQwazrTest {
 		}
 
 		NoTaxonomy() {
-			super(SHORT_ABSTRACT_FILE, ShortAbstractQwazrRecord.NoTaxonomy.class);
+			super(ShortAbstractQwazrRecord.NoTaxonomy.class);
 		}
 
 		@Override
@@ -51,7 +51,7 @@ class ShortAbstractQwazrTest {
 		}
 
 		WithTaxonomy() {
-			super(SHORT_ABSTRACT_FILE, ShortAbstractQwazrRecord.WithTaxonomy.class);
+			super(ShortAbstractQwazrRecord.WithTaxonomy.class);
 		}
 
 		@Override

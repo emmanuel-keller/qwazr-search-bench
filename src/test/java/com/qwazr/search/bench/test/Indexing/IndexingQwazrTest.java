@@ -34,7 +34,7 @@ class IndexingQwazrTest {
 		}
 
 		DefaultRamBuffer() {
-			super(SHORT_ABSTRACT_FILE, IndexingQwazrRecord.DefaultRamBuffer.class);
+			super(IndexingQwazrRecord.DefaultRamBuffer.class);
 		}
 
 		@Override
@@ -51,7 +51,7 @@ class IndexingQwazrTest {
 		}
 
 		HighRamBuffer() {
-			super(SHORT_ABSTRACT_FILE, IndexingQwazrRecord.HighRamBuffer.class);
+			super(IndexingQwazrRecord.HighRamBuffer.class);
 		}
 
 		@Override

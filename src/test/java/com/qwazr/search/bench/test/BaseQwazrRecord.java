@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ import com.qwazr.search.field.FieldDefinition;
 public abstract class BaseQwazrRecord {
 
 	@IndexField(name = FieldDefinition.ID_FIELD, template = FieldDefinition.Template.StringField)
-	final String url;
+	protected final String url;
 
 	public BaseQwazrRecord() {
 		url = null;

@@ -20,6 +20,7 @@ import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.TtlLoader;
 import com.qwazr.utils.FileUtils;
 import com.qwazr.utils.LoggerUtils;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -28,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +38,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -49,11 +47,6 @@ import java.util.logging.Logger;
 @RunWith(Parameterized.class)
 public abstract class BaseTest implements Consumer<TtlLineReader> {
 
-	@Parameterized.Parameters
-	public static Collection<Boolean> parameters() {
-		return Arrays.asList(true, true, false, false, false);
-	}
-
 	@Parameterized.Parameter
 	public Boolean warmup;
 
@@ -61,24 +54,11 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 
 	public static final String INDEX_NAME = "indexTest";
 
-	public static final int BATCH_SIZE = getEnvOrDefault("SEARCH_BENCH_BATCH_SIZE", 5000);
-
-	public static final int LIMIT = getEnvOrDefault("SEARCH_BENCH_LIMIT", 50000);
-
-	static final String SHORT_ABSTRACT_URL = "http://downloads.dbpedia.org/3.9/en/short_abstracts_en.ttl.bz2";
-
-	public static final File SHORT_ABSTRACT_FILE = new File("data/short_abstracts_en.ttl.bz2");
-
 	static Logger LOGGER = LoggerUtils.getLogger(BaseTest.class);
 
 	protected static TestSettings currentSettings;
 	protected static ExecutorService executor;
-	protected static Path indexDirectory;
-
-	private static int getEnvOrDefault(String key, int def) {
-		String val = System.getenv(key);
-		return val == null ? def : Integer.parseInt(val);
-	}
+	protected static Path schemaDirectory;
 
 	public static void before(final TestSettings settings) throws Exception {
 
@@ -87,11 +67,11 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 		Thread.sleep(20000);
 
 		// Download the DBPedia file
-		if (!SHORT_ABSTRACT_FILE.exists()) {
-			SHORT_ABSTRACT_FILE.getParentFile().mkdir();
-			try (final InputStream input = new URL(SHORT_ABSTRACT_URL).openStream()) {
+		if (!settings.ttlFile.exists()) {
+			settings.ttlFile.getParentFile().mkdir();
+			try (final InputStream input = new URL(settings.ttlUrl).openStream()) {
 				try (ReadableByteChannel rbc = Channels.newChannel(input)) {
-					try (final FileOutputStream fos = new FileOutputStream(SHORT_ABSTRACT_FILE)) {
+					try (final FileOutputStream fos = new FileOutputStream(settings.ttlFile)) {
 						try (final FileChannel fileChannel = fos.getChannel()) {
 							fileChannel.transferFrom(rbc, 0, Long.MAX_VALUE);
 						}
@@ -101,8 +81,11 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 		}
 
 		currentSettings = settings;
-		indexDirectory = Files.createTempDirectory("QwazrSearchBench");
+		schemaDirectory = settings.schemaDirectory;
 		executor = currentSettings.executor ? Executors.newCachedThreadPool() : null;
+
+		if (!Files.exists(schemaDirectory))
+			Files.createDirectory(schemaDirectory);
 	}
 
 	@AfterClass
@@ -115,9 +98,9 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 	private final TtlLoader loader;
 	private final int limit;
 
-	BaseTest(File ttlFile, int limit) {
-		this.loader = new TtlLoader(ttlFile);
-		this.limit = limit;
+	BaseTest() {
+		this.loader = new TtlLoader(currentSettings.ttlFile);
+		this.limit = currentSettings.limit;
 	}
 
 	private static long count;
@@ -126,7 +109,7 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 	public void test100Test() throws IOException {
 		ProfilerManager.reset();
 		LOGGER.info(currentSettings.toString());
-		LOGGER.info("INDEX DIR: " + indexDirectory);
+		LOGGER.info("INDEX DIR: " + schemaDirectory);
 		long time = System.currentTimeMillis();
 		count = loader.load(limit, this);
 		flush();
@@ -148,10 +131,10 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 
 	abstract long getNumDocs() throws IOException;
 
-	@Test
+	@After
 	public void testZZZCheck() throws IOException {
 		Assert.assertEquals(count, getNumDocs());
-		final Path rootPath = indexDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
+		final Path rootPath = schemaDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
 		long size = FileUtils.sizeOf(rootPath.resolve("data").toFile());
 		if (currentSettings.taxonomy) {
 			Path taxoPath = rootPath.resolve("taxonomy");

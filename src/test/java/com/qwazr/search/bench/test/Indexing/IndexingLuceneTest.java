@@ -31,11 +31,7 @@ abstract class IndexingLuceneTest extends LuceneTest {
 
 	final static String URL = "url";
 	final static String SHORT_ABSTRACT = "shortAbstract";
-
-	IndexingLuceneTest() {
-		super(SHORT_ABSTRACT_FILE, BATCH_SIZE, LIMIT);
-	}
-
+	
 	@Override
 	final public void accept(final TtlLineReader lineReader, final LuceneRecord record) {
 		final BytesRef termBytesRef = new BytesRef(lineReader.subject);
