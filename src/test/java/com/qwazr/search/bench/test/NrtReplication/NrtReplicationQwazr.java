@@ -31,6 +31,9 @@ public class NrtReplicationQwazr extends QwazrTest<QwazrRecord.Master> {
 		QwazrTest.before(TestSettings.of(currentResults).executor(true).schemaDirectory(schemaDirectory));
 	}
 
+	public void postCheck() {
+	}
+	
 	@Override
 	final public void accept(final TtlLineReader ttlLineReader) {
 		index(new QwazrRecord.Master(ttlLineReader));

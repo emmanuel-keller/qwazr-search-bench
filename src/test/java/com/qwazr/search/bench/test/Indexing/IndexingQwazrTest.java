@@ -20,14 +20,27 @@ import com.qwazr.search.bench.test.QwazrTest;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Created by ekeller on 15/02/2017.
  */
-class IndexingQwazrTest {
+public abstract class IndexingQwazrTest<T extends IndexingQwazrRecord> extends QwazrTest<T> {
+
+	protected IndexingQwazrTest(Class<T> masterRecordClass, Class<?>... optionalRecordClasses) {
+		super(masterRecordClass, optionalRecordClasses);
+	}
+
+	@Parameterized.Parameters
+	public static Collection<Boolean> iterations() {
+		return Arrays.asList(true, false);
+	}
 
 	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static class DefaultRamBuffer extends QwazrTest<IndexingQwazrRecord.DefaultRamBuffer> {
+	static class DefaultRamBuffer extends IndexingQwazrTest<IndexingQwazrRecord.DefaultRamBuffer> {
 
 		public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 			QwazrTest.before(settingsBuilder);
@@ -44,7 +57,7 @@ class IndexingQwazrTest {
 	}
 
 	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static class HighRamBuffer extends QwazrTest<IndexingQwazrRecord.HighRamBuffer> {
+	static class HighRamBuffer extends IndexingQwazrTest<IndexingQwazrRecord.HighRamBuffer> {
 
 		public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 			QwazrTest.before(settingsBuilder.highRamBuffer(true));

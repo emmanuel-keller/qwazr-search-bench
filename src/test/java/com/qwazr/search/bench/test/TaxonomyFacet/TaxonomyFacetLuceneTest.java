@@ -27,9 +27,13 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.util.BytesRef;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-abstract class TaxonomyFacetLuceneTest extends LuceneTest {
+public abstract class TaxonomyFacetLuceneTest extends LuceneTest {
 
 	final static String URL = "url";
 	final static String PREDICATE = "predicate";
@@ -38,6 +42,11 @@ abstract class TaxonomyFacetLuceneTest extends LuceneTest {
 
 	static {
 		FACETS_CONFIG.setMultiValued(PREDICATE, true);
+	}
+
+	@Parameterized.Parameters
+	public static Collection<Boolean> iterations() {
+		return Arrays.asList(true, false);
 	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {

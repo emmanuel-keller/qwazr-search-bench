@@ -20,9 +20,18 @@ import com.qwazr.search.bench.test.QwazrTest;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-abstract class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQwazrRecord> {
+public abstract class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQwazrRecord> {
+
+	@Parameterized.Parameters
+	public static Collection<Boolean> iterations() {
+		return Arrays.asList(true, false);
+	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		QwazrTest.before(settingsBuilder.taxonomy(false));

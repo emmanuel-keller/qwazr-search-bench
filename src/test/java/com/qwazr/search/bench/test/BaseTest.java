@@ -131,9 +131,12 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 
 	abstract long getNumDocs() throws IOException;
 
-	@After
-	public void testZZZCheck() throws IOException {
+	public void postCheck() throws IOException {
 		Assert.assertEquals(count, getNumDocs());
+	}
+
+	@After
+	public void testZZZCheck() {
 		final Path rootPath = schemaDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
 		long size = FileUtils.sizeOf(rootPath.resolve("data").toFile());
 		if (currentSettings.taxonomy) {

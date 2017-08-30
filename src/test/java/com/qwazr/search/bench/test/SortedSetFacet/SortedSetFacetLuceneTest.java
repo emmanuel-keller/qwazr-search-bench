@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,9 +27,13 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.util.BytesRef;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-abstract class SortedSetFacetLuceneTest extends LuceneTest {
+public abstract class SortedSetFacetLuceneTest extends LuceneTest {
 
 	final static String URL = "url";
 	final static String PREDICATE = "predicate";
@@ -38,6 +42,11 @@ abstract class SortedSetFacetLuceneTest extends LuceneTest {
 
 	static {
 		FACETS_CONFIG.setMultiValued(PREDICATE, true);
+	}
+
+	@Parameterized.Parameters
+	public static Collection<Boolean> iterations() {
+		return Arrays.asList(true, false);
 	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {

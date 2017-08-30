@@ -19,11 +19,7 @@ import com.qwazr.search.bench.test.CommonTestSuite;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Created by ekeller on 15/02/2017.
@@ -36,11 +32,6 @@ import java.util.Collection;
 		ShortAbstractTestSuite.QwazrWithTaxonomy.class,
 		ShortAbstractTestSuite.QwazrNoTaxonomy.class })
 public class ShortAbstractTestSuite extends CommonTestSuite {
-
-	@Parameterized.Parameters
-	public static Collection<Boolean> iterations() {
-		return Arrays.asList(true, false);
-	}
 
 	static public class LuceneNoExecutorWithTaxonomy extends ShortAbstractLuceneTest {
 

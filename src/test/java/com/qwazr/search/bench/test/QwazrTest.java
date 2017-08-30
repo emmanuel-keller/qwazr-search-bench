@@ -32,7 +32,7 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 	public static IndexManager indexManager;
 
 	private List<T> buffer;
-	
+
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		BaseTest.before(settingsBuilder.executor(true).build());
 		indexManager = new IndexManager(schemaDirectory, executor);
@@ -81,9 +81,13 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 		try {
 			indexService.postDocuments(buffer);
 			buffer.clear();
+			postFlush();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public void postFlush() {
 	}
 
 	@Override
