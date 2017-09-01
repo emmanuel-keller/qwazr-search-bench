@@ -47,7 +47,7 @@ public class TestSettings {
 
 	final int batchSize;
 
-	final int limit;
+	public final int limit;
 
 	final File ttlFile;
 

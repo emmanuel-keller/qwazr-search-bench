@@ -95,7 +95,7 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 		System.gc();
 	}
 
-	private final TtlLoader loader;
+	protected final TtlLoader loader;
 	private final int limit;
 
 	BaseTest() {
@@ -136,13 +136,14 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 	}
 
 	@After
-	public void testZZZCheck() {
+	public void testZZZCheck() throws IOException {
 		final Path rootPath = schemaDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
 		long size = FileUtils.sizeOf(rootPath.resolve("data").toFile());
 		if (currentSettings.taxonomy) {
 			Path taxoPath = rootPath.resolve("taxonomy");
 			size += FileUtils.sizeOf(taxoPath.toFile());
 		}
+		postCheck();
 		if (!warmup)
 			LOGGER.info("Index size: " + FileUtils.byteCountToDisplaySize(size));
 	}

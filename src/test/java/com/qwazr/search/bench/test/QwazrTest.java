@@ -56,8 +56,8 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 		BaseTest.after();
 	}
 
-	private final List<AnnotatedIndexService<?>> indexServices;
-	private final AnnotatedIndexService<T> indexService;
+	protected final List<AnnotatedIndexService<?>> indexServices;
+	protected final AnnotatedIndexService<T> indexService;
 
 	protected QwazrTest(Class<T> masterRecordClass, Class<?>... optionalRecordClasses) {
 		this.indexServices = new ArrayList<>();

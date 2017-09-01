@@ -18,15 +18,30 @@ public class QwazrRecord {
 		}
 	}
 
-	private final static String INDEX_NAME_SLAVE = BaseTest.INDEX_NAME + "Slave";
+	@Index(name = BaseTest.INDEX_NAME + "Slave1",
+			schema = BaseTest.SCHEMA_NAME,
+			replicationMaster = BaseTest.SCHEMA_NAME + '/' + BaseTest.INDEX_NAME,
+			indexReaderWarmer = false)
+	public static class Slave1 extends ShortAbstractQwazrRecord {
 
-	@Index(name = INDEX_NAME_SLAVE, schema = BaseTest.SCHEMA_NAME, replicationMaster = BaseTest.INDEX_NAME)
-	public static class Slave extends ShortAbstractQwazrRecord {
-
-		public Slave() {
+		public Slave1() {
 		}
 
-		public Slave(final TtlLineReader line) {
+		public Slave1(final TtlLineReader line) {
+			super(line);
+		}
+	}
+
+	@Index(name = BaseTest.INDEX_NAME + "Slave2",
+			schema = BaseTest.SCHEMA_NAME,
+			replicationMaster = BaseTest.SCHEMA_NAME + '/' + BaseTest.INDEX_NAME,
+			indexReaderWarmer = true)
+	public static class Slave2 extends ShortAbstractQwazrRecord {
+
+		public Slave2() {
+		}
+
+		public Slave2(final TtlLineReader line) {
 			super(line);
 		}
 	}
