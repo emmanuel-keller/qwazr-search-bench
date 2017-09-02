@@ -15,20 +15,20 @@
  */
 package com.qwazr.search.bench.test.FullText;
 
+import com.qwazr.search.analysis.SmartAnalyzerSet;
 import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
+import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.BaseQwazrRecord;
 import com.qwazr.search.bench.test.BaseTest;
-import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.field.FieldDefinition;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
 public abstract class ShortAbstractQwazrRecord extends BaseQwazrRecord {
 
-	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
+	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = SmartAnalyzerSet.Ascii.class)
 	protected final String shortAbstract;
 
 	protected ShortAbstractQwazrRecord() {

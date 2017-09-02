@@ -42,7 +42,8 @@ public abstract class TaxonomyFacetQwazrTest extends QwazrTest<TaxonomyFacetQwaz
 	}
 
 	@Override
-	final public void accept(final TtlLineReader ttlLineReader) {
+	final public Boolean apply(final TtlLineReader ttlLineReader) {
 		index(new TaxonomyFacetQwazrRecord(ttlLineReader));
+		return true;
 	}
 }

@@ -51,8 +51,9 @@ public abstract class IndexingQwazrTest<T extends IndexingQwazrRecord> extends Q
 		}
 
 		@Override
-		final public void accept(final TtlLineReader ttlLineReader) {
+		final public Boolean apply(final TtlLineReader ttlLineReader) {
 			index(new IndexingQwazrRecord.DefaultRamBuffer(ttlLineReader));
+			return true;
 		}
 	}
 
@@ -68,8 +69,9 @@ public abstract class IndexingQwazrTest<T extends IndexingQwazrRecord> extends Q
 		}
 
 		@Override
-		final public void accept(final TtlLineReader ttlLineReader) {
+		final public Boolean apply(final TtlLineReader ttlLineReader) {
 			index(new IndexingQwazrRecord.HighRamBuffer(ttlLineReader));
+			return true;
 		}
 	}
 }

@@ -43,9 +43,9 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 		BaseTest.before(settings);
 		LuceneTest.luceneIndex = currentSettings.taxonomy ?
 				new LuceneWithTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
-						settings.getRamBuffer()) :
+						settings.getRamBuffer(), settings.getUseCompoundFile()) :
 				new LuceneNoTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
-						settings.getRamBuffer());
+						settings.getRamBuffer(), settings.getUseCompoundFile());
 	}
 
 	@AfterClass
@@ -55,8 +55,9 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 	}
 
 	@Override
-	final public void accept(final TtlLineReader line) {
+	final public Boolean apply(final TtlLineReader line) {
 		indexer.accept(line);
+		return true;
 	}
 
 	@Override

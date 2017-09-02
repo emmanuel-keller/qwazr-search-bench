@@ -51,8 +51,9 @@ public abstract class ShortAbstractQwazrTest<T extends ShortAbstractQwazrRecord>
 		}
 
 		@Override
-		final public void accept(final TtlLineReader ttlLineReader) {
+		final public Boolean apply(final TtlLineReader ttlLineReader) {
 			index(new ShortAbstractQwazrRecord.NoTaxonomy(ttlLineReader));
+			return true;
 		}
 	}
 
@@ -68,8 +69,9 @@ public abstract class ShortAbstractQwazrTest<T extends ShortAbstractQwazrRecord>
 		}
 
 		@Override
-		final public void accept(final TtlLineReader ttlLineReader) {
+		final public Boolean apply(final TtlLineReader ttlLineReader) {
 			index(new ShortAbstractQwazrRecord.WithTaxonomy(ttlLineReader));
+			return true;
 		}
 	}
 }

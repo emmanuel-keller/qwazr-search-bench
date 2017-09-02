@@ -43,6 +43,8 @@ public class TestSettings {
 
 	final boolean highRamBuffer;
 
+	final boolean useCompoundFile;
+
 	final Path schemaDirectory;
 
 	final int batchSize;
@@ -60,6 +62,7 @@ public class TestSettings {
 		this.taxonomy = builder.taxonomy == null ? false : builder.taxonomy;
 		this.executor = builder.executor;
 		this.highRamBuffer = builder.highRamBuffer == null ? false : builder.highRamBuffer;
+		this.useCompoundFile = builder.useCompoundFile == null ? true : builder.useCompoundFile;
 		this.schemaDirectory = builder.schemaDirectory == null ?
 				Files.createTempDirectory("qwazrSearchBench") :
 				builder.schemaDirectory;
@@ -88,6 +91,10 @@ public class TestSettings {
 		return new Builder(results);
 	}
 
+	public boolean getUseCompoundFile() {
+		return useCompoundFile;
+	}
+
 	public static class Builder {
 
 		private Boolean taxonomy = null;
@@ -95,6 +102,8 @@ public class TestSettings {
 		private Boolean executor = null;
 
 		private Boolean highRamBuffer = null;
+
+		private Boolean useCompoundFile = null;
 
 		private Path schemaDirectory = null;
 
@@ -124,6 +133,11 @@ public class TestSettings {
 
 		public Builder highRamBuffer(boolean highRamBuffer) {
 			this.highRamBuffer = highRamBuffer;
+			return this;
+		}
+
+		public Builder useCompoundFile(boolean useCompoundFile) {
+			this.useCompoundFile = useCompoundFile;
 			return this;
 		}
 

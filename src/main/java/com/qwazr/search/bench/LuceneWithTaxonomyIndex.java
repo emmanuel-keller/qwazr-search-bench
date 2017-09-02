@@ -38,8 +38,9 @@ public class LuceneWithTaxonomyIndex extends LuceneCommonIndex {
 	private final SearcherTaxonomyManager searcherTaxonomyManager;
 
 	public LuceneWithTaxonomyIndex(final Path rootDirectory, final String schemaName, final String indexName,
-			final ExecutorService executorService, final double ramBufferSize) throws IOException {
-		super(rootDirectory, schemaName, indexName, ramBufferSize);
+			final ExecutorService executorService, final double ramBufferSize, final boolean useCompoundFile)
+			throws IOException {
+		super(rootDirectory, schemaName, indexName, ramBufferSize, useCompoundFile);
 
 		this.taxonomyDirectory = FSDirectory.open(indexDirectory.resolve("taxonomy"));
 		this.taxonomyWriter = new IndexAndTaxonomyRevision.SnapshotDirectoryTaxonomyWriter(taxonomyDirectory);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by ekeller on 01/01/2017.
@@ -36,7 +36,7 @@ public class TtlLoader {
 		this.ttlFile = ttlFile;
 	}
 
-	public int load(final int limit, final Consumer<TtlLineReader> consumer) throws IOException {
+	public int load(final int limit, final Function<TtlLineReader, Boolean> lineFunction) throws IOException {
 		int count = 0;
 		try (final FileInputStream fIn = new FileInputStream(ttlFile)) {
 			try (final BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(fIn, true)) {
@@ -46,8 +46,10 @@ public class TtlLoader {
 						while ((line = br.readLine()) != null) {
 							if (line.startsWith("#")) // Ignore comments
 								continue;
-							consumer.accept(new TtlLineReader(line));
-							if (++count == limit)
+							count++;
+							if (!lineFunction.apply(new TtlLineReader(line)))
+								break;
+							if (count == limit)
 								break;
 						}
 						return count;

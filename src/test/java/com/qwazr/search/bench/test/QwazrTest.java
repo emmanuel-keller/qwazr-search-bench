@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
@@ -33,6 +34,8 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 
 	private List<T> buffer;
 
+	protected AtomicInteger indexedDocumentsCount = new AtomicInteger();
+
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		BaseTest.before(settingsBuilder.executor(true).build());
 		indexManager = new IndexManager(schemaDirectory, executor);
@@ -40,7 +43,8 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 
 	static private <T> AnnotatedIndexService<T> createService(final Class<T> recordClass) {
 		try {
-			final AnnotatedIndexService<T> indexService = indexManager.getService(recordClass);
+			final AnnotatedIndexService<T> indexService =
+					new AnnotatedIndexService<>(indexManager.getService(), recordClass);
 			indexService.createUpdateSchema();
 			indexService.createUpdateIndex();
 			indexService.createUpdateFields();
@@ -80,6 +84,7 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 			return;
 		try {
 			indexService.postDocuments(buffer);
+			indexedDocumentsCount.addAndGet(buffer.size());
 			buffer.clear();
 			postFlush();
 		} catch (Exception e) {

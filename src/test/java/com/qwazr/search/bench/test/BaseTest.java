@@ -40,12 +40,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(Parameterized.class)
-public abstract class BaseTest implements Consumer<TtlLineReader> {
+public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 
 	@Parameterized.Parameter
 	public Boolean warmup;
@@ -106,7 +106,7 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 	private static long count;
 
 	@Test
-	public void test100Test() throws IOException {
+	public void test100() throws IOException {
 		ProfilerManager.reset();
 		LOGGER.info(currentSettings.toString());
 		LOGGER.info("INDEX DIR: " + schemaDirectory);
@@ -136,7 +136,7 @@ public abstract class BaseTest implements Consumer<TtlLineReader> {
 	}
 
 	@After
-	public void testZZZCheck() throws IOException {
+	public void endCheck() throws IOException {
 		final Path rootPath = schemaDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
 		long size = FileUtils.sizeOf(rootPath.resolve("data").toFile());
 		if (currentSettings.taxonomy) {

@@ -7,7 +7,7 @@ import com.qwazr.search.bench.test.FullText.ShortAbstractQwazrRecord;
 
 public class QwazrRecord {
 
-	@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME)
+	@Index(name = BaseTest.INDEX_NAME, schema = BaseTest.SCHEMA_NAME, ramBufferSize = 256, useCompoundFile = false)
 	public static class Master extends ShortAbstractQwazrRecord {
 
 		public Master() {

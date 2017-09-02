@@ -42,7 +42,8 @@ public abstract class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQw
 	}
 
 	@Override
-	final public void accept(final TtlLineReader ttlLineReader) {
+	final public Boolean apply(final TtlLineReader ttlLineReader) {
 		index(new SortedSetFacetQwazrRecord(ttlLineReader));
+		return true;
 	}
 }

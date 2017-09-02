@@ -78,7 +78,7 @@ public class MergingTest {
 
 		final LuceneCommonIndex index =
 				new LuceneNoTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executorService,
-						RAM_BUFFER_SIZE);
+						RAM_BUFFER_SIZE, false);
 		index.commitAndPublish();
 
 		IndexFiles lastIndexFiles = index.getIndexFiles();

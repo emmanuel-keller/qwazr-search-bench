@@ -51,7 +51,7 @@ abstract public class LuceneCommonIndex implements Closeable {
 	final IndexWriter indexWriter;
 
 	LuceneCommonIndex(final Path rootDirectory, final String schemaName, final String indexName,
-			final double ramBufferSize) throws IOException {
+			final double ramBufferSize, final boolean useCompoundFile) throws IOException {
 
 		final Path schemaDirectory = Files.createDirectory(rootDirectory.resolve(schemaName));
 		this.indexDirectory = Files.createDirectory(schemaDirectory.resolve(indexName));
@@ -65,7 +65,7 @@ abstract public class LuceneCommonIndex implements Closeable {
 		final ConcurrentMergeScheduler mergeScheduler = new ConcurrentMergeScheduler();
 		mergeScheduler.setMaxMergesAndThreads(MAX_SSD_MERGE_THREADS, MAX_SSD_MERGE_THREADS);
 		indexWriterConfig.setMergeScheduler(mergeScheduler);
-		indexWriterConfig.setUseCompoundFile(false);
+		indexWriterConfig.setUseCompoundFile(useCompoundFile);
 
 		final TieredMergePolicy mergePolicy = new TieredMergePolicy();
 		indexWriterConfig.setMergePolicy(mergePolicy);
