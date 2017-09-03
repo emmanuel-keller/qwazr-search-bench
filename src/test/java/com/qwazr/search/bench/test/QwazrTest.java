@@ -57,7 +57,7 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 	}
 
 	@AfterClass
-	public static void after() {
+	public static void after() throws InterruptedException {
 		indexManager.close();
 		BaseTest.after();
 	}
@@ -74,11 +74,18 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 	}
 
 	static IndexSettingsDefinition toSettings(final TestSettings.Index index) {
-		return IndexSettingsDefinition.of()
-				.enableTaxonomyIndex(index.taxonomy)
-				.useCompoundFile(index.useCompoundFile)
-				.ramBufferSize(index.ramBuffer)
-				.build();
+		try {
+			return IndexSettingsDefinition.of()
+					.enableTaxonomyIndex(index.taxonomy)
+					.useCompoundFile(index.useCompoundFile)
+					.ramBufferSize(index.ramBuffer)
+					.indexReaderWarmer(index.useWarmer)
+					.mergedSegmentWarmer(index.useWarmer)
+					.master(index.master)
+					.build();
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	final public void index(final T record) {

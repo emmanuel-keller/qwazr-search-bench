@@ -15,7 +15,6 @@
  */
 package com.qwazr.search.bench.test.NrtReplication;
 
-import com.qwazr.search.bench.test.QwazrTest;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.BeforeClass;
 
@@ -25,12 +24,12 @@ public class NrtReplicationMasterNoCfs extends NrtReplicationBase {
 
 	@BeforeClass
 	public static void before() throws Exception {
-		QwazrTest.before(TestSettings.of(currentResults)
+		NrtReplicationBase.before("masterNoCfs", TestSettings.of(currentResults)
 				.schemaDirectory(schemaDirectory)
 				.index("masterNoCfs")
 				.ramBuffer(256)
 				.useCompoundFile(false)
 				.settings());
 	}
-	
+
 }

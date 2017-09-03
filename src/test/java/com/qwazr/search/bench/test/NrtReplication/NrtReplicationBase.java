@@ -2,7 +2,9 @@ package com.qwazr.search.bench.test.NrtReplication;
 
 import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.bench.TtlLineReader;
+import com.qwazr.search.bench.test.BaseTest;
 import com.qwazr.search.bench.test.QwazrTest;
+import com.qwazr.search.bench.test.TestSettings;
 import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.index.ResultDefinition;
@@ -44,6 +46,17 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 
 	}
 
+	public static void before(String masterName, TestSettings.Builder settingsBuilder) throws Exception {
+		QwazrTest.before(settingsBuilder.index("SlaveNoWarmer")
+				.master(BaseTest.SCHEMA_NAME + '/' + masterName)
+				.useWarmer(false)
+				.settings()
+				.index("SlaveWithWarmer")
+				.master(BaseTest.SCHEMA_NAME + '/' + masterName)
+				.useWarmer(true)
+				.settings());
+	}
+
 	protected QueryBuilder shortAbstractQuery(String term) {
 		return QueryDefinition.of(QueryParser.of("shortAbstract")
 				.setQueryString(org.apache.lucene.queryparser.classic.QueryParser.escape(term))
@@ -69,6 +82,12 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 		return true;
 	}
 
+	@Override
+	public void preTest() {
+		slave1.replicationCheck();
+		slave2.replicationCheck();
+	}
+	
 	@Override
 	public void postCheck() {
 	}

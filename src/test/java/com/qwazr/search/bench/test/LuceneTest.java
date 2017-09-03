@@ -50,7 +50,7 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 	}
 
 	@AfterClass
-	public static void after() {
+	public static void after() throws InterruptedException {
 		IOUtils.close(luceneIndex);
 		BaseTest.after();
 	}

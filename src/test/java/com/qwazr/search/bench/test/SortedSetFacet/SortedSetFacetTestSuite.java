@@ -15,6 +15,7 @@
  */
 package com.qwazr.search.bench.test.SortedSetFacet;
 
+import com.qwazr.search.bench.test.BaseTest;
 import com.qwazr.search.bench.test.CommonTestSuite;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.BeforeClass;
@@ -34,7 +35,7 @@ public class SortedSetFacetTestSuite extends CommonTestSuite {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).executor(false));
+			before(TestSettings.of(currentResults).executor(false).index(BaseTest.INDEX_NAME).settings());
 		}
 	}
 
@@ -42,7 +43,7 @@ public class SortedSetFacetTestSuite extends CommonTestSuite {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).executor(true));
+			before(TestSettings.of(currentResults).executor(true).index(BaseTest.INDEX_NAME).settings());
 		}
 	}
 
@@ -50,7 +51,7 @@ public class SortedSetFacetTestSuite extends CommonTestSuite {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults));
+			before(TestSettings.of(currentResults).index(BaseTest.INDEX_NAME).settings());
 		}
 	}
 }

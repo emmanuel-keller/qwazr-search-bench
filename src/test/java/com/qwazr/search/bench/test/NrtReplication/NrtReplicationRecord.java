@@ -16,14 +16,17 @@
 package com.qwazr.search.bench.test.NrtReplication;
 
 import com.qwazr.search.analysis.SmartAnalyzerSet;
+import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.BaseQwazrRecord;
+import com.qwazr.search.bench.test.BaseTest;
 import com.qwazr.search.field.FieldDefinition;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
+@Index(schema = BaseTest.SCHEMA_NAME, name = BaseTest.INDEX_NAME)
 public class NrtReplicationRecord extends BaseQwazrRecord {
 
 	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = SmartAnalyzerSet.Ascii.class)

@@ -164,18 +164,24 @@ public class TestSettings {
 
 		final boolean useCompoundFile;
 
+		final boolean useWarmer;
+
+		final String master;
+
 		Index(Builder builder) {
 			this.index = builder.index;
 			this.taxonomy = builder.taxonomy == null ? false : builder.taxonomy;
 			this.ramBuffer =
 					builder.ramBuffer == null ? IndexWriterConfig.DEFAULT_RAM_BUFFER_SIZE_MB : builder.ramBuffer;
 			this.useCompoundFile = builder.useCompoundFile == null ? true : builder.useCompoundFile;
+			this.useWarmer = builder.useWarmer == null ? true : builder.useWarmer;
+			this.master = builder.master;
 		}
 
 		@Override
 		public String toString() {
 			return "INDEX: " + index + " - Taxonomy: " + taxonomy + " - RamBuffer: " + ramBuffer + "MB - UseCFS: " +
-					useCompoundFile;
+					useCompoundFile + " - UseWarmer: " + useWarmer + " - Master: " + master;
 		}
 
 		public static class Builder {
@@ -189,6 +195,10 @@ public class TestSettings {
 			private Double ramBuffer;
 
 			private Boolean useCompoundFile;
+
+			private Boolean useWarmer;
+
+			private String master;
 
 			Builder(TestSettings.Builder builder, String index) {
 				this.builder = builder;
@@ -210,6 +220,16 @@ public class TestSettings {
 				return this;
 			}
 
+			public Builder useWarmer(Boolean useWarmer) {
+				this.useWarmer = useWarmer;
+				return this;
+			}
+
+			public Builder master(String master) {
+				this.master = master;
+				return this;
+			}
+
 			public TestSettings.Builder settings() {
 				return builder;
 			}
@@ -217,6 +237,7 @@ public class TestSettings {
 			Index build() {
 				return new Index(this);
 			}
+
 		}
 	}
 }

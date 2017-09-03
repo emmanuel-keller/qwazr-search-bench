@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
@@ -89,10 +90,14 @@ public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 	}
 
 	@AfterClass
-	public static void after() {
-		if (executor != null)
+	public static void after() throws InterruptedException {
+		if (executor != null) {
 			executor.shutdown();
+			executor.awaitTermination(1, TimeUnit.MILLISECONDS);
+			executor.shutdownNow();
+		}
 		System.gc();
+		currentSettings = null;
 	}
 
 	protected final TtlLoader loader;
@@ -105,10 +110,14 @@ public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 
 	private static long count;
 
+	protected void preTest() {
+	}
+
 	@Test
 	public void test100() throws IOException {
+		preTest();
 		ProfilerManager.reset();
-		LOGGER.info(currentSettings.toString());
+		LOGGER.info("START TEST " + currentSettings.toString());
 		LOGGER.info("INDEX DIR: " + schemaDirectory);
 		long time = System.currentTimeMillis();
 		count = loader.load(limit, this);
@@ -125,6 +134,7 @@ public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 			if (currentSettings.results != null)
 				currentSettings.results.add(this, rate);
 		}
+		LOGGER.info("END TEST");
 	}
 
 	abstract void flush();
@@ -137,7 +147,7 @@ public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 
 	@After
 	public void endCheck() throws IOException {
-		final Path rootPath = schemaDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
+		final Path rootPath = schemaDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(currentSettings.indexes[0].index);
 		long size = FileUtils.sizeOf(rootPath.resolve("data").toFile());
 		if (currentSettings.indexes[0].taxonomy) {
 			Path taxoPath = rootPath.resolve("taxonomy");
