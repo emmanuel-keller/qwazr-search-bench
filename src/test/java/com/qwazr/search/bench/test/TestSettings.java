@@ -21,31 +21,27 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ekeller on 15/02/2017.
  */
 public class TestSettings {
 
-	static final int DEFAULT_BATCH_SIZE = getEnvOrDefault("SEARCH_BENCH_BATCH_SIZE", 5000);
+	static final int DEFAULT_BATCH_SIZE = getEnvOrDefault("SEARCH_BENCH_BATCH_SIZE", 2000);
 
-	static final int DEFAULT_LIMIT = getEnvOrDefault("SEARCH_BENCH_LIMIT", 50000);
+	static final int DEFAULT_LIMIT = getEnvOrDefault("SEARCH_BENCH_LIMIT", 5000);
 
 	static final String DEFAULT_TTL_URL = "http://downloads.dbpedia.org/3.9/en/short_abstracts_en.ttl.bz2";
 
 	static final File DEFAULT_TTL_FILE = new File("data/short_abstracts_en.ttl.bz2");
 
-	static final double HIGH_RAM_BUFFER = 2048;
-
-	final boolean taxonomy;
-
-	final boolean executor;
-
-	final boolean highRamBuffer;
-
-	final boolean useCompoundFile;
+	final Index[] indexes;
 
 	final Path schemaDirectory;
+
+	final boolean executor;
 
 	final int batchSize;
 
@@ -59,13 +55,14 @@ public class TestSettings {
 
 	private TestSettings(Builder builder) throws IOException {
 		this.results = builder.results;
-		this.taxonomy = builder.taxonomy == null ? false : builder.taxonomy;
-		this.executor = builder.executor;
-		this.highRamBuffer = builder.highRamBuffer == null ? false : builder.highRamBuffer;
-		this.useCompoundFile = builder.useCompoundFile == null ? true : builder.useCompoundFile;
+		this.indexes = new Index[builder.indexesBuilder.size()];
+		int i = 0;
+		for (Index.Builder indexBuilder : builder.indexesBuilder)
+			this.indexes[i++] = indexBuilder.build();
 		this.schemaDirectory = builder.schemaDirectory == null ?
 				Files.createTempDirectory("qwazrSearchBench") :
 				builder.schemaDirectory;
+		this.executor = builder.executor == null ? false : builder.executor;
 		this.batchSize = builder.batchSize == null ? DEFAULT_BATCH_SIZE : builder.batchSize;
 		this.limit = builder.limit == null ? DEFAULT_LIMIT : builder.limit;
 		this.ttlFile = builder.ttlFile == null ? DEFAULT_TTL_FILE : builder.ttlFile;
@@ -77,35 +74,25 @@ public class TestSettings {
 		return val == null ? def : Integer.parseInt(val);
 	}
 
-	double getRamBuffer() {
-		return highRamBuffer ? HIGH_RAM_BUFFER : IndexWriterConfig.DEFAULT_RAM_BUFFER_SIZE_MB;
-	}
-
 	@Override
 	public String toString() {
-		return "SETTINGS - Executor: " + executor + " - Taxonomy: " + taxonomy + " - RamBuffer: " + getRamBuffer() +
-				"MB" + " - Path: " + schemaDirectory;
+		String s = "SETTINGS  - Executor: " + executor + " - Path: " + schemaDirectory;
+		for (Index index : indexes)
+			s += System.lineSeparator() + index.toString();
+		return s;
 	}
 
 	public static Builder of(TestResults results) {
 		return new Builder(results);
 	}
 
-	public boolean getUseCompoundFile() {
-		return useCompoundFile;
-	}
-
 	public static class Builder {
 
-		private Boolean taxonomy = null;
-
-		private Boolean executor = null;
-
-		private Boolean highRamBuffer = null;
-
-		private Boolean useCompoundFile = null;
+		private final List<Index.Builder> indexesBuilder = new ArrayList<>();
 
 		private Path schemaDirectory = null;
+
+		private Boolean executor;
 
 		private Integer batchSize;
 
@@ -121,28 +108,23 @@ public class TestSettings {
 			this.results = results;
 		}
 
-		public Builder taxonomy(boolean taxonomy) {
-			this.taxonomy = taxonomy;
-			return this;
+		public Index.Builder index(String index) {
+			final Index.Builder indexBuilder = new Index.Builder(this, index);
+			indexesBuilder.add(indexBuilder);
+			return indexBuilder;
 		}
 
-		public Builder executor(boolean executor) {
-			this.executor = executor;
-			return this;
-		}
-
-		public Builder highRamBuffer(boolean highRamBuffer) {
-			this.highRamBuffer = highRamBuffer;
-			return this;
-		}
-
-		public Builder useCompoundFile(boolean useCompoundFile) {
-			this.useCompoundFile = useCompoundFile;
-			return this;
+		public Index.Builder index(int i) {
+			return indexesBuilder.get(i);
 		}
 
 		public Builder schemaDirectory(Path schemaDirectory) {
 			this.schemaDirectory = schemaDirectory;
+			return this;
+		}
+
+		public Builder executor(Boolean executor) {
+			this.executor = executor;
 			return this;
 		}
 
@@ -172,4 +154,69 @@ public class TestSettings {
 
 	}
 
+	public static class Index {
+
+		final String index;
+
+		final boolean taxonomy;
+
+		final double ramBuffer;
+
+		final boolean useCompoundFile;
+
+		Index(Builder builder) {
+			this.index = builder.index;
+			this.taxonomy = builder.taxonomy == null ? false : builder.taxonomy;
+			this.ramBuffer =
+					builder.ramBuffer == null ? IndexWriterConfig.DEFAULT_RAM_BUFFER_SIZE_MB : builder.ramBuffer;
+			this.useCompoundFile = builder.useCompoundFile == null ? true : builder.useCompoundFile;
+		}
+
+		@Override
+		public String toString() {
+			return "INDEX: " + index + " - Taxonomy: " + taxonomy + " - RamBuffer: " + ramBuffer + "MB - UseCFS: " +
+					useCompoundFile;
+		}
+
+		public static class Builder {
+
+			private final TestSettings.Builder builder;
+
+			private final String index;
+
+			private Boolean taxonomy;
+
+			private Double ramBuffer;
+
+			private Boolean useCompoundFile;
+
+			Builder(TestSettings.Builder builder, String index) {
+				this.builder = builder;
+				this.index = index;
+			}
+
+			public Builder taxonomy(Boolean taxonomy) {
+				this.taxonomy = taxonomy;
+				return this;
+			}
+
+			public Builder ramBuffer(Integer ramBuffer) {
+				this.ramBuffer = ramBuffer.doubleValue();
+				return this;
+			}
+
+			public Builder useCompoundFile(Boolean useCompoundFile) {
+				this.useCompoundFile = useCompoundFile;
+				return this;
+			}
+
+			public TestSettings.Builder settings() {
+				return builder;
+			}
+
+			Index build() {
+				return new Index(this);
+			}
+		}
+	}
 }

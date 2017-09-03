@@ -50,7 +50,7 @@ public abstract class SortedSetFacetLuceneTest extends LuceneTest {
 	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
-		LuceneTest.before(settingsBuilder.taxonomy(false));
+		LuceneTest.before(settingsBuilder.index(0).taxonomy(false).settings());
 	}
 
 	@Override

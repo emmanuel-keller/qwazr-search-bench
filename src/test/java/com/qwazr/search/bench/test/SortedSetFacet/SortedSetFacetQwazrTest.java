@@ -34,7 +34,7 @@ public abstract class SortedSetFacetQwazrTest extends QwazrTest<SortedSetFacetQw
 	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
-		QwazrTest.before(settingsBuilder.taxonomy(false));
+		QwazrTest.before(settingsBuilder.index(0).taxonomy(false).settings());
 	}
 
 	SortedSetFacetQwazrTest() {

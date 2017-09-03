@@ -34,7 +34,7 @@ public abstract class TaxonomyFacetQwazrTest extends QwazrTest<TaxonomyFacetQwaz
 	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
-		QwazrTest.before(settingsBuilder.taxonomy(true));
+		QwazrTest.before(settingsBuilder.index(0).taxonomy(true).settings());
 	}
 
 	TaxonomyFacetQwazrTest() {

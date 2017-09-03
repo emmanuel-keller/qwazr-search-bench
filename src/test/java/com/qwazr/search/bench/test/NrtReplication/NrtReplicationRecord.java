@@ -13,30 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test.FullText;
+package com.qwazr.search.bench.test.NrtReplication;
 
-import com.qwazr.search.annotations.Index;
+import com.qwazr.search.analysis.SmartAnalyzerSet;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.BaseQwazrRecord;
-import com.qwazr.search.bench.test.BaseTest;
 import com.qwazr.search.field.FieldDefinition;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-@Index(schema = BaseTest.SCHEMA_NAME, name = BaseTest.INDEX_NAME)
-public class ShortAbstractQwazrRecord extends BaseQwazrRecord {
+public class NrtReplicationRecord extends BaseQwazrRecord {
 
-	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = StandardAnalyzer.class)
+	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = SmartAnalyzerSet.Ascii.class)
 	protected final String shortAbstract;
 
-	public ShortAbstractQwazrRecord() {
+	public NrtReplicationRecord() {
 		shortAbstract = null;
 	}
 
-	public ShortAbstractQwazrRecord(final TtlLineReader line) {
+	public NrtReplicationRecord(final TtlLineReader line) {
 		super(line);
 		shortAbstract = line.object;
 	}

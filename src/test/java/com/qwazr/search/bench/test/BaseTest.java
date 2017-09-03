@@ -139,7 +139,7 @@ public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 	public void endCheck() throws IOException {
 		final Path rootPath = schemaDirectory.resolve(BaseTest.SCHEMA_NAME).resolve(BaseTest.INDEX_NAME);
 		long size = FileUtils.sizeOf(rootPath.resolve("data").toFile());
-		if (currentSettings.taxonomy) {
+		if (currentSettings.indexes[0].taxonomy) {
 			Path taxoPath = rootPath.resolve("taxonomy");
 			size += FileUtils.sizeOf(taxoPath.toFile());
 		}

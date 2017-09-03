@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,7 @@
  */
 package com.qwazr.search.bench.test.FullText;
 
+import com.qwazr.search.bench.test.BaseTest;
 import com.qwazr.search.bench.test.CommonTestSuite;
 import com.qwazr.search.bench.test.TestSettings;
 import org.junit.BeforeClass;
@@ -37,7 +38,11 @@ public class ShortAbstractTestSuite extends CommonTestSuite {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).executor(false).taxonomy(true));
+			before(TestSettings.of(currentResults)
+					.executor(false)
+					.index(BaseTest.INDEX_NAME)
+					.taxonomy(true)
+					.settings());
 		}
 	}
 
@@ -45,7 +50,11 @@ public class ShortAbstractTestSuite extends CommonTestSuite {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).executor(false).taxonomy(false));
+			before(TestSettings.of(currentResults)
+					.executor(false)
+					.index(BaseTest.INDEX_NAME)
+					.taxonomy(false)
+					.settings());
 		}
 	}
 
@@ -53,7 +62,7 @@ public class ShortAbstractTestSuite extends CommonTestSuite {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).executor(true).taxonomy(true));
+			before(TestSettings.of(currentResults).executor(true).index(BaseTest.INDEX_NAME).taxonomy(true).settings());
 		}
 	}
 
@@ -61,23 +70,83 @@ public class ShortAbstractTestSuite extends CommonTestSuite {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults).executor(true).taxonomy(false));
+			before(TestSettings.of(currentResults)
+					.executor(true)
+					.index(BaseTest.INDEX_NAME)
+					.taxonomy(false)
+					.settings());
 		}
 	}
 
-	static public class QwazrNoTaxonomy extends ShortAbstractQwazrTest.NoTaxonomy {
+	static public class QwazrNoTaxonomy extends ShortAbstractQwazrTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults));
+			before(TestSettings.of(currentResults)
+					.executor(true)
+					.index(BaseTest.INDEX_NAME)
+					.taxonomy(false)
+					.settings());
 		}
 	}
 
-	static public class QwazrWithTaxonomy extends ShortAbstractQwazrTest.WithTaxonomy {
+	static public class QwazrWithTaxonomy extends ShortAbstractQwazrTest {
 
 		@BeforeClass
 		public static void before() throws Exception {
-			before(TestSettings.of(currentResults));
+			before(TestSettings.of(currentResults).index(BaseTest.INDEX_NAME).taxonomy(true).settings());
+		}
+	}
+
+	static public class LuceneNoExecutorLowRamBuffer extends ShortAbstractLuceneTest {
+
+		@BeforeClass
+		public static void before() throws Exception {
+			before(TestSettings.of(currentResults).executor(false).index(BaseTest.INDEX_NAME).settings());
+		}
+	}
+
+	static public class LuceneNoExecutorHighRamBuffer extends ShortAbstractLuceneTest {
+
+		@BeforeClass
+		public static void before() throws Exception {
+			before(TestSettings.of(currentResults)
+					.executor(false)
+					.index(BaseTest.INDEX_NAME)
+					.ramBuffer(256)
+					.settings());
+		}
+	}
+
+	static public class LuceneWithExecutorLowRamBuffer extends ShortAbstractLuceneTest {
+
+		@BeforeClass
+		public static void before() throws Exception {
+			before(TestSettings.of(currentResults).executor(true).index(BaseTest.INDEX_NAME).settings());
+		}
+	}
+
+	static public class LuceneWithExecutorHighRamBuffer extends ShortAbstractLuceneTest {
+
+		@BeforeClass
+		public static void before() throws Exception {
+			before(TestSettings.of(currentResults).executor(true).index(BaseTest.INDEX_NAME).ramBuffer(256).settings());
+		}
+	}
+
+	static public class QwazrLowRamBuffer extends ShortAbstractQwazrTest {
+
+		@BeforeClass
+		public static void before() throws Exception {
+			before(TestSettings.of(currentResults).index(BaseTest.INDEX_NAME).settings());
+		}
+	}
+
+	static public class QwazrHighRamBuffer extends ShortAbstractQwazrTest {
+
+		@BeforeClass
+		public static void before() throws Exception {
+			before(TestSettings.of(currentResults).index(BaseTest.INDEX_NAME).ramBuffer(256).settings());
 		}
 	}
 }

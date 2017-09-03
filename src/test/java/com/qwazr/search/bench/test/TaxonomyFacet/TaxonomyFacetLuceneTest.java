@@ -50,7 +50,7 @@ public abstract class TaxonomyFacetLuceneTest extends LuceneTest {
 	}
 
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
-		LuceneTest.before(settingsBuilder.taxonomy(true));
+		LuceneTest.before(settingsBuilder.index(0).taxonomy(true).settings());
 	}
 
 	@Override

@@ -41,11 +41,12 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		final TestSettings settings = settingsBuilder.build();
 		BaseTest.before(settings);
-		LuceneTest.luceneIndex = currentSettings.taxonomy ?
+		TestSettings.Index indexSettings = currentSettings.indexes[0];
+		LuceneTest.luceneIndex = indexSettings.taxonomy ?
 				new LuceneWithTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
-						settings.getRamBuffer(), settings.getUseCompoundFile()) :
+						indexSettings.ramBuffer, indexSettings.useCompoundFile) :
 				new LuceneNoTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor,
-						settings.getRamBuffer(), settings.getUseCompoundFile());
+						indexSettings.ramBuffer, indexSettings.useCompoundFile);
 	}
 
 	@AfterClass

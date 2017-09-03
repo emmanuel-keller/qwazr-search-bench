@@ -17,6 +17,7 @@ package com.qwazr.search.bench.test;
 
 import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.index.IndexManager;
+import com.qwazr.search.index.IndexSettingsDefinition;
 import org.junit.AfterClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
@@ -41,10 +42,11 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 		indexManager = new IndexManager(schemaDirectory, executor);
 	}
 
-	static private <T> AnnotatedIndexService<T> createService(final Class<T> recordClass) {
+	static private <T> AnnotatedIndexService<T> createService(final Class<T> recordClass, final String schema,
+			final String index, final IndexSettingsDefinition settings) {
 		try {
 			final AnnotatedIndexService<T> indexService =
-					new AnnotatedIndexService<>(indexManager.getService(), recordClass);
+					new AnnotatedIndexService<>(indexManager.getService(), recordClass, schema, index, settings);
 			indexService.createUpdateSchema();
 			indexService.createUpdateIndex();
 			indexService.createUpdateFields();
@@ -60,16 +62,23 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 		BaseTest.after();
 	}
 
-	protected final List<AnnotatedIndexService<?>> indexServices;
+	protected final List<AnnotatedIndexService<T>> indexServices;
 	protected final AnnotatedIndexService<T> indexService;
 
-	protected QwazrTest(Class<T> masterRecordClass, Class<?>... optionalRecordClasses) {
+	protected QwazrTest(Class<T> recordClass) {
 		this.indexServices = new ArrayList<>();
-		if (optionalRecordClasses != null)
-			for (Class<?> recordClass : optionalRecordClasses)
-				indexServices.add(createService(recordClass));
-		this.indexService = createService(masterRecordClass);
+		for (TestSettings.Index index : currentSettings.indexes)
+			indexServices.add(createService(recordClass, BaseTest.SCHEMA_NAME, index.index, toSettings(index)));
+		indexService = indexServices.get(0);
 		this.buffer = new ArrayList<>();
+	}
+
+	static IndexSettingsDefinition toSettings(final TestSettings.Index index) {
+		return IndexSettingsDefinition.of()
+				.enableTaxonomyIndex(index.taxonomy)
+				.useCompoundFile(index.useCompoundFile)
+				.ramBufferSize(index.ramBuffer)
+				.build();
 	}
 
 	final public void index(final T record) {

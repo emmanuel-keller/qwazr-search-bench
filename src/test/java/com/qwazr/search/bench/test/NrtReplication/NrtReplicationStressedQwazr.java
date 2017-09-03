@@ -2,7 +2,6 @@ package com.qwazr.search.bench.test.NrtReplication;
 
 import com.qwazr.search.annotations.AnnotatedIndexService;
 import com.qwazr.search.bench.TtlLineReader;
-import com.qwazr.search.bench.test.FullText.ShortAbstractQwazrRecord;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.junit.Before;
@@ -12,9 +11,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-public class NrtReplicationStressedQwazr extends NrtReplicationBase {
+public class NrtReplicationStressedQwazr extends NrtReplicationMasterNoCfs {
 
-	final AtomicBoolean running = new AtomicBoolean(true);
+	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	private Future<StatisticalSummary> requesterMaster, requesterSlave1, requesterSlave2;
 
@@ -27,6 +26,7 @@ public class NrtReplicationStressedQwazr extends NrtReplicationBase {
 
 	@Override
 	public void postCheck() {
+		super.postCheck();
 		running.set(false);
 		try {
 			dump("MASTER", requesterMaster.get());
@@ -40,11 +40,11 @@ public class NrtReplicationStressedQwazr extends NrtReplicationBase {
 	class Requester implements Callable<StatisticalSummary>, Function<TtlLineReader, Boolean> {
 
 		private final SummaryStatistics stats = new SummaryStatistics();
-		private final AnnotatedIndexService<? extends ShortAbstractQwazrRecord> service;
+		private final AnnotatedIndexService<NrtReplicationRecord> service;
 
 		private int count;
 
-		Requester(AnnotatedIndexService<? extends ShortAbstractQwazrRecord> service) {
+		Requester(AnnotatedIndexService<NrtReplicationRecord> service) {
 			this.service = service;
 			this.count = 0;
 		}

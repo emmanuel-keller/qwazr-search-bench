@@ -17,9 +17,6 @@ package com.qwazr.search.bench.test.FullText;
 
 import com.qwazr.search.bench.TtlLineReader;
 import com.qwazr.search.bench.test.QwazrTest;
-import com.qwazr.search.bench.test.TestSettings;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
@@ -28,10 +25,10 @@ import java.util.Collection;
 /**
  * Created by ekeller on 15/02/2017.
  */
-public abstract class ShortAbstractQwazrTest<T extends ShortAbstractQwazrRecord> extends QwazrTest<T> {
+public abstract class ShortAbstractQwazrTest extends QwazrTest<ShortAbstractQwazrRecord> {
 
-	protected ShortAbstractQwazrTest(Class<T> masterRecordClass, Class<?>... optionalRecordClasses) {
-		super(masterRecordClass, optionalRecordClasses);
+	protected ShortAbstractQwazrTest() {
+		super(ShortAbstractQwazrRecord.class);
 	}
 
 	@Parameterized.Parameters
@@ -39,39 +36,10 @@ public abstract class ShortAbstractQwazrTest<T extends ShortAbstractQwazrRecord>
 		return Arrays.asList(true, false);
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static class NoTaxonomy extends ShortAbstractQwazrTest<ShortAbstractQwazrRecord.NoTaxonomy> {
-
-		public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
-			QwazrTest.before(settingsBuilder.taxonomy(false));
-		}
-
-		NoTaxonomy() {
-			super(ShortAbstractQwazrRecord.NoTaxonomy.class);
-		}
-
-		@Override
-		final public Boolean apply(final TtlLineReader ttlLineReader) {
-			index(new ShortAbstractQwazrRecord.NoTaxonomy(ttlLineReader));
-			return true;
-		}
+	@Override
+	final public Boolean apply(final TtlLineReader ttlLineReader) {
+		index(new ShortAbstractQwazrRecord(ttlLineReader));
+		return true;
 	}
 
-	@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-	static class WithTaxonomy extends ShortAbstractQwazrTest<ShortAbstractQwazrRecord.WithTaxonomy> {
-
-		public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
-			QwazrTest.before(settingsBuilder.taxonomy(true));
-		}
-
-		WithTaxonomy() {
-			super(ShortAbstractQwazrRecord.WithTaxonomy.class);
-		}
-
-		@Override
-		final public Boolean apply(final TtlLineReader ttlLineReader) {
-			index(new ShortAbstractQwazrRecord.WithTaxonomy(ttlLineReader));
-			return true;
-		}
-	}
 }
