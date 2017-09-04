@@ -73,7 +73,7 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 
 	long query(AnnotatedIndexService<NrtReplicationRecord> index, QueryDefinition query) {
 		final long startTime = System.currentTimeMillis();
-		ResultDefinition.WithObject<NrtReplicationRecord> result = index.searchQuery(query);
+		final ResultDefinition.WithObject<NrtReplicationRecord> result = index.searchQuery(query);
 		final long duration = System.currentTimeMillis() - startTime;
 		Assert.assertNotNull(result);
 		return duration;
@@ -104,9 +104,11 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 		slave1.replicationCheck();
 		slave2.replicationCheck();
 
-		statsMaster.addValue(query(master, query));
-		statsSlave1.addValue(query(slave1, query));
-		statsSlave2.addValue(query(slave2, query));
+		if (flushCount.get() > 0) { // We don't want the first one
+			statsMaster.addValue(query(master, query));
+			statsSlave1.addValue(query(slave1, query));
+			statsSlave2.addValue(query(slave2, query));
+		}
 
 		System.out.println("FLUSHED: " + indexedDocumentsCount.get());
 		dump("master", statsMaster);
