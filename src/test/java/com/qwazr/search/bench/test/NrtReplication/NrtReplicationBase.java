@@ -89,6 +89,10 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 	public void preTest() {
 		slave1.replicationCheck();
 		slave2.replicationCheck();
+
+		query(master, query);
+		query(slave1, query);
+		query(slave2, query);
 	}
 
 	@Override
@@ -104,11 +108,9 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 		slave1.replicationCheck();
 		slave2.replicationCheck();
 
-		if (flushCount.get() > 0) { // We don't want the first one
-			statsMaster.addValue(query(master, query));
-			statsSlave1.addValue(query(slave1, query));
-			statsSlave2.addValue(query(slave2, query));
-		}
+		statsMaster.addValue(query(master, query));
+		statsSlave1.addValue(query(slave1, query));
+		statsSlave2.addValue(query(slave2, query));
 
 		System.out.println("FLUSHED: " + indexedDocumentsCount.get());
 		dump("master", statsMaster);
