@@ -8,7 +8,7 @@ import com.qwazr.search.bench.test.TestSettings;
 import com.qwazr.search.index.QueryBuilder;
 import com.qwazr.search.index.QueryDefinition;
 import com.qwazr.search.index.ResultDefinition;
-import com.qwazr.search.query.QueryParser;
+import com.qwazr.search.query.MultiFieldQueryParser;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.junit.Assert;
@@ -58,7 +58,10 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 	}
 
 	protected QueryBuilder shortAbstractQuery(String term) {
-		return QueryDefinition.of(QueryParser.of("shortAbstract")
+		return QueryDefinition.of(MultiFieldQueryParser.of()
+				.addField("shortAbstract", "shortAbstractEn")
+				.addBoost("shortAbstract", 2.0f)
+				.addBoost("shortAbstractEn", 1.0f)
 				.setQueryString(org.apache.lucene.queryparser.classic.QueryParser.escape(term))
 				.build()).returnedField("*");
 	}
@@ -87,13 +90,17 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 		slave1.replicationCheck();
 		slave2.replicationCheck();
 	}
-	
+
 	@Override
 	public void postCheck() {
 	}
 
 	@Override
 	public void postFlush() {
+
+		if (flushCount.get() % 10 != 0)
+			return;
+
 		slave1.replicationCheck();
 		slave2.replicationCheck();
 

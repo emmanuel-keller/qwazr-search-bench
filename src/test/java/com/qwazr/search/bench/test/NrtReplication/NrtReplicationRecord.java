@@ -16,6 +16,7 @@
 package com.qwazr.search.bench.test.NrtReplication;
 
 import com.qwazr.search.analysis.SmartAnalyzerSet;
+import com.qwazr.search.annotations.Copy;
 import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.bench.TtlLineReader;
@@ -29,16 +30,26 @@ import com.qwazr.search.field.FieldDefinition;
 @Index(schema = BaseTest.SCHEMA_NAME, name = BaseTest.INDEX_NAME)
 public class NrtReplicationRecord extends BaseQwazrRecord {
 
-	@IndexField(template = FieldDefinition.Template.TextField, analyzerClass = SmartAnalyzerSet.Ascii.class)
+	@IndexField(template = FieldDefinition.Template.TextField,
+			analyzerClass = SmartAnalyzerSet.Ascii.class,
+			stored = false)
+	@Copy(to = { @Copy.To(order = 1, field = "shortAbstractEn") })
 	protected final String shortAbstract;
+
+	@IndexField(template = FieldDefinition.Template.TextField,
+			analyzerClass = SmartAnalyzerSet.English.class,
+			stored = true)
+	protected final String shortAbstractEn;
 
 	public NrtReplicationRecord() {
 		shortAbstract = null;
+		shortAbstractEn = null;
 	}
 
 	public NrtReplicationRecord(final TtlLineReader line) {
 		super(line);
 		shortAbstract = line.object;
+		shortAbstractEn = null;
 	}
 
 }

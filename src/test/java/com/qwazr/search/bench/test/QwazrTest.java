@@ -37,6 +37,8 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 
 	protected AtomicInteger indexedDocumentsCount = new AtomicInteger();
 
+	protected AtomicInteger flushCount = new AtomicInteger();
+
 	public static void before(final TestSettings.Builder settingsBuilder) throws Exception {
 		BaseTest.before(settingsBuilder.executor(true).build());
 		indexManager = new IndexManager(schemaDirectory, executor);
@@ -102,6 +104,7 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 			indexService.postDocuments(buffer);
 			indexedDocumentsCount.addAndGet(buffer.size());
 			buffer.clear();
+			flushCount.incrementAndGet();
 			postFlush();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
