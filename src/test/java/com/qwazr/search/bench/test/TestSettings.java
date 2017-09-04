@@ -70,7 +70,9 @@ public class TestSettings {
 	}
 
 	static int getEnvOrDefault(String key, int def) {
-		String val = System.getenv(key);
+		String val = System.getProperty(key.toLowerCase());
+		if (val == null)
+			val = System.getenv(key.toUpperCase());
 		return val == null ? def : Integer.parseInt(val);
 	}
 
