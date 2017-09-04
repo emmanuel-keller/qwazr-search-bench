@@ -28,11 +28,16 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 		return Arrays.asList(false);
 	}
 
-	private final QueryDefinition query = shortAbstractQuery("a the an then who when where what").build();
+	private final QueryDefinition query1 = shortAbstractQuery("a the an then who when where what").build();
+	private final QueryDefinition query2 = shortAbstractQuery("is as be to will can have has").build();
 
-	private final SummaryStatistics statsMaster = new SummaryStatistics();
-	private final SummaryStatistics statsSlave1 = new SummaryStatistics();
-	private final SummaryStatistics statsSlave2 = new SummaryStatistics();
+	private final SummaryStatistics statsMasterQuery1 = new SummaryStatistics();
+	private final SummaryStatistics statsSlave1Query1 = new SummaryStatistics();
+	private final SummaryStatistics statsSlave2Query1 = new SummaryStatistics();
+
+	private final SummaryStatistics statsMasterQuery2 = new SummaryStatistics();
+	private final SummaryStatistics statsSlave1Query2 = new SummaryStatistics();
+	private final SummaryStatistics statsSlave2Query2 = new SummaryStatistics();
 
 	final AnnotatedIndexService<NrtReplicationRecord> master;
 	final AnnotatedIndexService<NrtReplicationRecord> slave1;
@@ -90,9 +95,13 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 		slave1.replicationCheck();
 		slave2.replicationCheck();
 
-		query(master, query);
-		query(slave1, query);
-		query(slave2, query);
+		query(master, query1);
+		query(slave1, query1);
+		query(slave2, query1);
+
+		query(master, query2);
+		query(slave1, query2);
+		query(slave2, query2);
 	}
 
 	@Override
@@ -108,14 +117,23 @@ public abstract class NrtReplicationBase extends QwazrTest<NrtReplicationRecord>
 		slave1.replicationCheck();
 		slave2.replicationCheck();
 
-		statsMaster.addValue(query(master, query));
-		statsSlave1.addValue(query(slave1, query));
-		statsSlave2.addValue(query(slave2, query));
+		statsMasterQuery1.addValue(query(master, query1));
+		statsSlave1Query1.addValue(query(slave1, query1));
+		statsSlave2Query1.addValue(query(slave2, query1));
+
+		statsMasterQuery2.addValue(query(master, query2));
+		statsSlave1Query2.addValue(query(slave1, query2));
+		statsSlave2Query2.addValue(query(slave2, query2));
 
 		System.out.println("FLUSHED: " + indexedDocumentsCount.get());
-		dump("master", statsMaster);
-		dump("slave1", statsSlave1);
-		dump("slave2", statsSlave2);
+		System.out.println("-----");
+		dump("Master Query1", statsMasterQuery1);
+		dump("Slave1 Query1", statsSlave1Query1);
+		dump("Slave2 Query1", statsSlave2Query1);
+		System.out.println("-----");
+		dump("Master Query2", statsMasterQuery2);
+		dump("Slave1 Query2", statsSlave1Query2);
+		dump("Slave2 Query2", statsSlave2Query2);
 		System.out.println();
 
 	}
