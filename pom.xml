@@ -11,6 +11,54 @@
 
     <url>https://github.com/qwazr/search-bench</url>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <description>Benchmarking for Lucene and qwazr-search</description>
+
+    <organization>
+        <name>Emmanuel Keller</name>
+        <url>https://www.qwazr.com</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <name>Emmanuel Keller</name>
+            <email>emmanuel@qwazr.com</email>
+            <organization>Emmanuel Keller</organization>
+            <organizationUrl>https://www.qwazr.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:qwazr/search-bench.git</connection>
+        <developerConnection>scm:git:git@github.com:qwazr/search-bench.git</developerConnection>
+        <url>git@github.com:qwazr/search-bench.git</url>
+        <tag>HEAD</tag>
+    </scm>
+    <issueManagement>
+        <url>https://github.com/qwazr/search-bench/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <url>https://travis-ci.org/qwazr/search-bench</url>
+    </ciManagement>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
