@@ -134,12 +134,16 @@ public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 			if (currentSettings.results != null)
 				currentSettings.results.add(this, rate);
 		}
+		postTest();
 		LOGGER.info("END TEST");
 	}
 
 	abstract void flush();
 
 	abstract long getNumDocs() throws IOException;
+
+	protected void postTest() throws IOException {
+	}
 
 	public void postCheck() throws IOException {
 		Assert.assertEquals(count, getNumDocs());

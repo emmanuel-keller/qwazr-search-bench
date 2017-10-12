@@ -84,6 +84,7 @@ public abstract class QwazrTest<T extends BaseQwazrRecord> extends BaseTest {
 					.indexReaderWarmer(index.useWarmer)
 					.mergedSegmentWarmer(index.useWarmer)
 					.master(index.master)
+					.similarityClass(index.similarityClass)
 					.build();
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);

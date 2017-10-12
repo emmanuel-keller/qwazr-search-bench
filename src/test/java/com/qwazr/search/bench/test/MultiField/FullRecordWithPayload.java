@@ -13,45 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.qwazr.search.bench.test.NrtReplication;
+package com.qwazr.search.bench.test.MultiField;
 
 import com.qwazr.search.analysis.SmartAnalyzerSet;
-import com.qwazr.search.annotations.Copy;
 import com.qwazr.search.annotations.Index;
 import com.qwazr.search.annotations.IndexField;
 import com.qwazr.search.bench.TtlLineReader;
-import com.qwazr.search.bench.test.BaseQwazrRecord;
 import com.qwazr.search.bench.test.BaseTest;
 import com.qwazr.search.field.FieldDefinition;
+import org.apache.lucene.index.IndexOptions;
 
-/**
- * Created by ekeller on 01/01/2017.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 @Index(schema = BaseTest.SCHEMA_NAME, name = BaseTest.INDEX_NAME)
-public class NrtReplicationRecord extends BaseQwazrRecord {
+public class FullRecordWithPayload extends FullRecordBase {
 
 	@IndexField(template = FieldDefinition.Template.TextField,
-			analyzerClass = SmartAnalyzerSet.AsciiIndex.class,
+			analyzerClass = PayloadAnalyzer.class,
 			queryAnalyzerClass = SmartAnalyzerSet.AsciiQuery.class,
+			tokenized = true,
+			indexOptions = IndexOptions.DOCS_AND_FREQS_AND_POSITIONS,
 			stored = false)
-	@Copy(to = { @Copy.To(order = 1, field = "shortAbstractEn") })
-	protected final String shortAbstract;
+	protected final List<String> full;
 
-	@IndexField(template = FieldDefinition.Template.TextField,
-			analyzerClass = SmartAnalyzerSet.EnglishIndex.class,
-			queryAnalyzerClass = SmartAnalyzerSet.EnglishQuery.class,
-			stored = true)
-	protected final String shortAbstractEn;
-
-	public NrtReplicationRecord() {
-		shortAbstract = null;
-		shortAbstractEn = null;
+	public FullRecordWithPayload() {
+		full = null;
 	}
 
-	public NrtReplicationRecord(final TtlLineReader line) {
+	public FullRecordWithPayload(final TtlLineReader line) {
 		super(line);
-		shortAbstract = line.object;
-		shortAbstractEn = null;
+		full = new ArrayList<>();
+		full.add("0 " + url);
+		full.add("1 " + shortAbstract);
 	}
-
 }

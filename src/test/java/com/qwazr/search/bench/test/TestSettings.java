@@ -16,6 +16,7 @@
 package com.qwazr.search.bench.test;
 
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.search.similarities.Similarity;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,10 +79,10 @@ public class TestSettings {
 
 	@Override
 	public String toString() {
-		String s = "SETTINGS  - Executor: " + executor + " - Path: " + schemaDirectory;
+		StringBuilder sb = new StringBuilder("SETTINGS  - Executor: " + executor + " - Path: " + schemaDirectory);
 		for (Index index : indexes)
-			s += System.lineSeparator() + index.toString();
-		return s;
+			sb.append(System.lineSeparator()).append(index.toString());
+		return sb.toString();
 	}
 
 	public static Builder of(TestResults results) {
@@ -170,6 +171,8 @@ public class TestSettings {
 
 		final String master;
 
+		final Class<? extends Similarity> similarityClass;
+
 		Index(Builder builder) {
 			this.index = builder.index;
 			this.taxonomy = builder.taxonomy == null ? false : builder.taxonomy;
@@ -178,6 +181,7 @@ public class TestSettings {
 			this.useCompoundFile = builder.useCompoundFile == null ? true : builder.useCompoundFile;
 			this.useWarmer = builder.useWarmer == null ? true : builder.useWarmer;
 			this.master = builder.master;
+			this.similarityClass = builder.similarityClass;
 		}
 
 		@Override
@@ -201,6 +205,8 @@ public class TestSettings {
 			private Boolean useWarmer;
 
 			private String master;
+
+			private Class<? extends Similarity> similarityClass;
 
 			Builder(TestSettings.Builder builder, String index) {
 				this.builder = builder;
@@ -229,6 +235,11 @@ public class TestSettings {
 
 			public Builder master(String master) {
 				this.master = master;
+				return this;
+			}
+
+			public Builder similarity(Class<? extends Similarity> similarityCass) {
+				this.similarityClass = similarityCass;
 				return this;
 			}
 
