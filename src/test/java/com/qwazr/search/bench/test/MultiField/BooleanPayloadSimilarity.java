@@ -1,6 +1,5 @@
 package com.qwazr.search.bench.test.MultiField;
 
-import org.apache.lucene.analysis.payloads.PayloadHelper;
 import org.apache.lucene.index.FieldInvertState;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.CollectionStatistics;
@@ -73,7 +72,7 @@ public class BooleanPayloadSimilarity extends Similarity {
 			final public float computePayloadFactor(int doc, int start, int end, BytesRef payload) {
 				if (payload == null)
 					return 1F;
-				final int pos = PayloadHelper.decodeInt(payload.bytes, payload.offset);
+				final int pos = payload.bytes[payload.offset];
 				return boosts[pos];
 			}
 		};

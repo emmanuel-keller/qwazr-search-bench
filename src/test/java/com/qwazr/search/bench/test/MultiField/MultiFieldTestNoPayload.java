@@ -21,12 +21,10 @@ import com.qwazr.search.bench.test.TestResults;
 import com.qwazr.search.bench.test.TestSettings;
 import com.qwazr.search.field.FieldDefinition;
 import com.qwazr.search.index.QueryDefinition;
-import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.query.MultiFieldQuery;
 import com.qwazr.search.query.QueryParserOperator;
 import com.qwazr.utils.LoggerUtils;
 import org.apache.lucene.search.similarities.BooleanSimilarity;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 
 import java.util.LinkedHashMap;
@@ -57,24 +55,27 @@ public class MultiFieldTestNoPayload extends MultiFieldTestBase<FullRecordNoPayl
 	}
 
 	@Override
-	protected void postTest() {
+	protected QueryDefinition getQuery(String queryString) {
+
 		final Map<String, Float> fieldsBoosts = new LinkedHashMap<>();
 		fieldsBoosts.put(FieldDefinition.ID_FIELD, 4f);
 		fieldsBoosts.put("shortAbstract", 2f);
 		fieldsBoosts.put("full", 1f);
-		final QueryDefinition query = QueryDefinition.of(
-				new MultiFieldQuery(fieldsBoosts, null, null, QueryParserOperator.AND, "a the", null, 0.001f))
+
+		return QueryDefinition.of(
+				new MultiFieldQuery(fieldsBoosts, null, null, QueryParserOperator.AND, queryString, null, 0.001f))
 				.queryDebug(true)
 				.build();
+	}
 
-		ResultDefinition.WithObject<FullRecordNoPayload> result = indexService.searchQuery(query);
-
-		Assert.assertEquals(
-				"(($id$:a the~2)^4.0 | (+shortAbstract:a +shortAbstract:the)^2.0 | (+full:a +full:the))~0.001",
-				result.query);
-		LOGGER.info("Max score: " + result.getMaxScore() + " - Total hits: " + result.getTotalHits() + " - Time: " +
-				result.timer.totalTime);
-
-		System.out.println(indexService.explainQueryDot(query, result.documents.get(0).doc, 80));
+	@Override
+	protected String getExplain(String queryString) {
+		switch (queryString) {
+		case QUERY1:
+			return "(($id$:a http~2)^4.0 | (+shortAbstract:a +shortAbstract:http)^2.0 | (+full:a +full:http))~0.001";
+		case QUERY2:
+			return "(($id$:autism impaired social interaction~2)^4.0 | (+shortAbstract:autism +shortAbstract:impaired +shortAbstract:social +shortAbstract:interaction)^2.0 | (+full:autism +full:impaired +full:social +full:interaction))~0.001";
+		}
+		return null;
 	}
 }

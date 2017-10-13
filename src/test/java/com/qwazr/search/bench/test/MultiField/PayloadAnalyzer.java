@@ -81,12 +81,19 @@ final public class PayloadAnalyzer extends Analyzer {
 		@Override
 		final protected boolean accept() throws IOException {
 			if (payload == null) {
-				payload = integerEncoder.encode(termAtt.buffer(), 0, termAtt.length());
+				payload = computePayload();
 				return false;
 			}
 			payAtt.setPayload(payload);
 			return true;
 		}
 
+		final BytesRef computePayload() {
+			char c = termAtt.charAt(0);
+			assert c >= 48 && termAtt.length() == 1;
+			return new BytesRef(new byte[] { (byte) (c - 48) });
+		}
+
 	}
+
 }

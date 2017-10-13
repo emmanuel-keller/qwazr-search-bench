@@ -21,17 +21,10 @@ import com.qwazr.search.bench.test.TestResults;
 import com.qwazr.search.bench.test.TestSettings;
 import com.qwazr.search.field.FieldDefinition;
 import com.qwazr.search.index.QueryDefinition;
-import com.qwazr.search.index.ResultDefinition;
 import com.qwazr.search.query.QueryParserOperator;
-import com.qwazr.utils.LoggerUtils;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 
-import java.util.logging.Logger;
-
 public class MultiFieldTestWithPayload extends MultiFieldTestBase<FullRecordWithPayload> {
-
-	static Logger LOGGER = LoggerUtils.getLogger(MultiFieldTestWithPayload.class);
 
 	public MultiFieldTestWithPayload() {
 		super(FullRecordWithPayload.class);
@@ -52,25 +45,22 @@ public class MultiFieldTestWithPayload extends MultiFieldTestBase<FullRecordWith
 		return true;
 	}
 
-	private final static String EXPLAIN_DISMAX_WITH_SPAN =
-			"(PayloadScoreQuery($id$:a http, function: MaxPayloadFunction, includeSpanScore: true) | (+PayloadScoreQuery(shortAbstract:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(shortAbstract:http" +
-					", function: MaxPayloadFunction, includeSpanScore: true)) | (+PayloadScoreQuery(full:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(full:http, function: MaxPayloadFunction, includeSpanScore: true)))";
-
-	private final static String EXPLAIN_DISMAX_WITHOUT_SPAN =
-			"(PayloadScoreQuery($id$:a http, function: MaxPayloadFunction, includeSpanScore: false) | (+PayloadScoreQuery(shortAbstract:a, function: MaxPayloadFunction, includeSpanScore: false) +PayloadScoreQuery(shortAbstract:http, function: MaxPayloadFunction, includeSpanScore: false)) | (+PayloadScoreQuery(full:a, function: MaxPayloadFunction, includeSpanScore: false) +PayloadScoreQuery(full:http, function: MaxPayloadFunction, includeSpanScore: false)))";
+	@Override
+	protected String getExplain(String queryString) {
+		switch (queryString) {
+		case QUERY1:
+			return "(PayloadScoreQuery($id$:a http, function: MaxPayloadFunction, includeSpanScore: true) | (+PayloadScoreQuery(shortAbstract:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(shortAbstract:http, function: MaxPayloadFunction, includeSpanScore: true)) | (+PayloadScoreQuery(full:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(full:http, function: MaxPayloadFunction, includeSpanScore: true)))";
+		case QUERY2:
+			return "(PayloadScoreQuery($id$:autism impaired social interaction, function: MaxPayloadFunction, includeSpanScore: true) | (+PayloadScoreQuery(shortAbstract:autism, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(shortAbstract:impaired, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(shortAbstract:social, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(shortAbstract:interaction, function: MaxPayloadFunction, includeSpanScore: true)) | (+PayloadScoreQuery(full:autism, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(full:impaired, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(full:social, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(full:interaction, function: MaxPayloadFunction, includeSpanScore: true)))";
+		}
+		return null;
+	}
 
 	@Override
-	protected void postTest() {
-		QueryDefinition query = QueryDefinition.of(
-				new PayloadDismaxQuery(QueryParserOperator.AND, "a http", 0f, FieldDefinition.ID_FIELD, "shortAbstract",
-						"full")).queryDebug(true).build();
-
-		ResultDefinition.WithObject<FullRecordWithPayload> result = indexService.searchQuery(query);
-
-		Assert.assertEquals(EXPLAIN_DISMAX_WITH_SPAN, result.query);
-		LOGGER.info("Max score: " + result.getMaxScore() + " - Total hits: " + result.getTotalHits() + " - Time: " +
-				result.timer.totalTime);
-
-		System.out.println(indexService.explainQueryDot(query, result.documents.get(0).doc, 80));
+	protected QueryDefinition getQuery(String queryString) {
+		return QueryDefinition.of(
+				new PayloadDismaxQuery(QueryParserOperator.AND, queryString, 0f, FieldDefinition.ID_FIELD,
+						"shortAbstract", "full")).queryDebug(true).build();
 	}
+
 }
