@@ -75,7 +75,7 @@ final public class PayloadDismaxQuery extends AbstractQuery<PayloadDismaxQuery> 
 		}
 
 		protected Query newTermQuery(Term term) {
-			return new PayloadScoreQuery(new SpanTermQuery(term), new MaxPayloadFunction(), false);
+			return new PayloadScoreQuery(new SpanTermQuery(term), new MaxPayloadFunction(), true);
 		}
 	}
 }

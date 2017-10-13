@@ -53,20 +53,21 @@ public class MultiFieldTestWithPayload extends MultiFieldTestBase<FullRecordWith
 	}
 
 	private final static String EXPLAIN_DISMAX_WITH_SPAN =
-			"(PayloadScoreQuery($id$:a the, function: MaxPayloadFunction, includeSpanScore: true) | (+PayloadScoreQuery(shortAbstract:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(shortAbstract:the, function: MaxPayloadFunction, includeSpanScore: true)) | (+PayloadScoreQuery(full:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(full:the, function: MaxPayloadFunction, includeSpanScore: true)))";
+			"(PayloadScoreQuery($id$:a http, function: MaxPayloadFunction, includeSpanScore: true) | (+PayloadScoreQuery(shortAbstract:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(shortAbstract:http" +
+					", function: MaxPayloadFunction, includeSpanScore: true)) | (+PayloadScoreQuery(full:a, function: MaxPayloadFunction, includeSpanScore: true) +PayloadScoreQuery(full:http, function: MaxPayloadFunction, includeSpanScore: true)))";
 
 	private final static String EXPLAIN_DISMAX_WITHOUT_SPAN =
-			"(PayloadScoreQuery($id$:a the, function: MaxPayloadFunction, includeSpanScore: false) | (+PayloadScoreQuery(shortAbstract:a, function: MaxPayloadFunction, includeSpanScore: false) +PayloadScoreQuery(shortAbstract:the, function: MaxPayloadFunction, includeSpanScore: false)) | (+PayloadScoreQuery(full:a, function: MaxPayloadFunction, includeSpanScore: false) +PayloadScoreQuery(full:the, function: MaxPayloadFunction, includeSpanScore: false)))";
+			"(PayloadScoreQuery($id$:a http, function: MaxPayloadFunction, includeSpanScore: false) | (+PayloadScoreQuery(shortAbstract:a, function: MaxPayloadFunction, includeSpanScore: false) +PayloadScoreQuery(shortAbstract:http, function: MaxPayloadFunction, includeSpanScore: false)) | (+PayloadScoreQuery(full:a, function: MaxPayloadFunction, includeSpanScore: false) +PayloadScoreQuery(full:http, function: MaxPayloadFunction, includeSpanScore: false)))";
 
 	@Override
 	protected void postTest() {
 		QueryDefinition query = QueryDefinition.of(
-				new PayloadDismaxQuery(QueryParserOperator.AND, "a the", 0f, FieldDefinition.ID_FIELD, "shortAbstract",
+				new PayloadDismaxQuery(QueryParserOperator.AND, "a http", 0f, FieldDefinition.ID_FIELD, "shortAbstract",
 						"full")).queryDebug(true).build();
 
 		ResultDefinition.WithObject<FullRecordWithPayload> result = indexService.searchQuery(query);
 
-		Assert.assertEquals(EXPLAIN_DISMAX_WITHOUT_SPAN, result.query);
+		Assert.assertEquals(EXPLAIN_DISMAX_WITH_SPAN, result.query);
 		LOGGER.info("Max score: " + result.getMaxScore() + " - Total hits: " + result.getTotalHits() + " - Time: " +
 				result.timer.totalTime);
 
