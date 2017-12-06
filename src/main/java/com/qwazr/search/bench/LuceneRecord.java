@@ -16,27 +16,55 @@
 package com.qwazr.search.bench;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ekeller on 01/01/2017.
  */
-final public class LuceneRecord {
+abstract public class LuceneRecord {
 
 	public Term termId;
-	public final Document document;
 
-	public LuceneRecord() {
-		this.document = new Document();
+	final static public class Indexable extends LuceneRecord {
+
+		public final Document document;
+
+		public Indexable() {
+			this.document = new Document();
+		}
+
+		final public void reset(final Term termId, final IndexableField... fields) {
+			this.termId = termId;
+			document.clear();
+			if (fields != null)
+				for (IndexableField field : fields)
+					if (field != null)
+						document.add(field);
+		}
+
 	}
 
-	final public void reset(final Term termId, final IndexableField... fields) {
-		this.termId = termId;
-		document.clear();
-		if (fields != null)
-			for (IndexableField field : fields)
-				document.add(field);
+	final static public class DocValues extends LuceneRecord {
+
+		public final List<Field> docValuesFields;
+
+		public DocValues() {
+			this.docValuesFields = new ArrayList<>();
+		}
+
+		final public void reset(final Term termId, final Field... fields) {
+			this.termId = termId;
+			docValuesFields.clear();
+			if (fields != null)
+				for (Field field : fields)
+					if (field != null)
+						docValuesFields.add(field);
+		}
 	}
 
 }

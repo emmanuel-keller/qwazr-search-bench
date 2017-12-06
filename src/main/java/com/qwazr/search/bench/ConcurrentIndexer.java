@@ -30,7 +30,7 @@ public class ConcurrentIndexer extends CommonIndexer {
 	private final Queue queue;
 
 	public ConcurrentIndexer(final ExecutorService executor, final LuceneCommonIndex luceneIndex,
-			final FacetsConfig facetsConfig, final BiConsumer<TtlLineReader, LuceneRecord> converter,
+			final FacetsConfig facetsConfig, final BiConsumer<TtlLineReader, LuceneRecord.Indexable> converter,
 			final int batchSize) {
 		super(luceneIndex, facetsConfig, converter, batchSize);
 		this.queue = new Queue(executor);
@@ -49,7 +49,7 @@ public class ConcurrentIndexer extends CommonIndexer {
 
 	class TtlLineReaderConsumer implements Consumer<TtlLineReader> {
 
-		private final LuceneRecord record = new LuceneRecord();
+		private final LuceneRecord.Indexable record = new LuceneRecord.Indexable();
 
 		@Override
 		final public void accept(final TtlLineReader line) {

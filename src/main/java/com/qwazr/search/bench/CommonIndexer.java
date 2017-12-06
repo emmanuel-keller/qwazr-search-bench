@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,13 +30,13 @@ public abstract class CommonIndexer implements Consumer<TtlLineReader>, Closeabl
 
 	private final LuceneCommonIndex luceneIndex;
 	private final FacetsConfig facetsConfig;
-	private final BiConsumer<TtlLineReader, LuceneRecord> converter;
+	private final BiConsumer<TtlLineReader, LuceneRecord.Indexable> converter;
 	private final int batchSize;
 	private int batchCount;
 	private final ReentrantLock batchLock = new ReentrantLock();
 
 	CommonIndexer(final LuceneCommonIndex luceneIndex, final FacetsConfig facetsConfig,
-			final BiConsumer<TtlLineReader, LuceneRecord> converter, final int batchSize) {
+			final BiConsumer<TtlLineReader, LuceneRecord.Indexable> converter, final int batchSize) {
 		this.luceneIndex = luceneIndex;
 		this.facetsConfig = facetsConfig;
 		this.converter = converter;
@@ -53,7 +53,7 @@ public abstract class CommonIndexer implements Consumer<TtlLineReader>, Closeabl
 		}
 	}
 
-	final protected void index(final TtlLineReader line, final LuceneRecord luceneRecord) {
+	final protected void index(final TtlLineReader line, final LuceneRecord.Indexable luceneRecord) {
 		converter.accept(line, luceneRecord);
 		try {
 			luceneIndex.updateDocument(facetsConfig, luceneRecord);

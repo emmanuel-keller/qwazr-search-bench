@@ -30,7 +30,7 @@ import org.junit.AfterClass;
 import java.io.IOException;
 import java.util.function.BiConsumer;
 
-public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineReader, LuceneRecord> {
+public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineReader, LuceneRecord.Indexable> {
 
 	protected static LuceneCommonIndex luceneIndex;
 
@@ -51,7 +51,7 @@ public abstract class LuceneTest extends BaseTest implements BiConsumer<TtlLineR
 
 	@AfterClass
 	public static void after() throws InterruptedException {
-		IOUtils.close(luceneIndex);
+		IOUtils.closeQuietly(luceneIndex);
 		BaseTest.after();
 	}
 

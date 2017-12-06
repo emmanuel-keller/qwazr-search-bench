@@ -18,22 +18,14 @@ package com.qwazr.search.bench.test.MultiField;
 import com.qwazr.search.analysis.SmartAnalyzerSet;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterGraphFilter;
-import org.apache.lucene.analysis.payloads.IntegerEncoder;
 import org.apache.lucene.analysis.standard.UAX29URLEmailTokenizer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.PayloadAttribute;
-import org.apache.lucene.util.BytesRef;
 
-import java.io.IOException;
 import java.io.Reader;
 
 final public class PayloadAnalyzer extends Analyzer {
-
-	private static final IntegerEncoder integerEncoder = new IntegerEncoder();
 
 	public PayloadAnalyzer() {
 	}
@@ -42,16 +34,17 @@ final public class PayloadAnalyzer extends Analyzer {
 	final protected TokenStreamComponents createComponents(final String fieldName) {
 
 		final Tokenizer tokenizer = new UAX29URLEmailTokenizer();
-
-		TokenStream stream = new WordDelimiterGraphFilter(tokenizer,
+		// Read the payload from the first token
+		final FirstTokenPayloadFilter firstTokenPayloadFilter = new FirstTokenPayloadFilter(tokenizer);
+		TokenStream stream = new WordDelimiterGraphFilter(firstTokenPayloadFilter,
 				WordDelimiterGraphFilter.GENERATE_WORD_PARTS | WordDelimiterGraphFilter.GENERATE_NUMBER_PARTS |
 						WordDelimiterGraphFilter.SPLIT_ON_NUMERICS | WordDelimiterGraphFilter.SPLIT_ON_CASE_CHANGE |
 						WordDelimiterGraphFilter.CATENATE_ALL | WordDelimiterGraphFilter.CATENATE_NUMBERS |
 						WordDelimiterGraphFilter.CATENATE_WORDS | WordDelimiterGraphFilter.PRESERVE_ORIGINAL,
 				CharArraySet.EMPTY_SET);
 		stream = SmartAnalyzerSet.ascii(stream);
-		stream = new FirstTokenPayloadFilter(stream);
-
+		// Set the payload to any token
+		stream = firstTokenPayloadFilter.newSetter(stream);
 		return new TokenStreamComponents(tokenizer, stream) {
 			@Override
 			protected void setReader(final Reader reader) {
@@ -60,40 +53,6 @@ final public class PayloadAnalyzer extends Analyzer {
 		};
 	}
 
-	public final class FirstTokenPayloadFilter extends FilteringTokenFilter {
 
-		private BytesRef payload;
-
-		private final PayloadAttribute payAtt = addAttribute(PayloadAttribute.class);
-		private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-
-		FirstTokenPayloadFilter(TokenStream input) {
-			super(input);
-			payload = null;
-		}
-
-		@Override
-		final public void reset() throws IOException {
-			super.reset();
-			payload = null;
-		}
-
-		@Override
-		final protected boolean accept() throws IOException {
-			if (payload == null) {
-				payload = computePayload();
-				return false;
-			}
-			payAtt.setPayload(payload);
-			return true;
-		}
-
-		final BytesRef computePayload() {
-			char c = termAtt.charAt(0);
-			assert c >= 48 && termAtt.length() == 1;
-			return new BytesRef(new byte[] { (byte) (c - 48) });
-		}
-
-	}
 
 }

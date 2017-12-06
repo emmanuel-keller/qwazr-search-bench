@@ -54,7 +54,7 @@ public abstract class TaxonomyFacetLuceneTest extends LuceneTest {
 	}
 
 	@Override
-	final public void accept(final TtlLineReader lineReader, final LuceneRecord record) {
+	final public void accept(final TtlLineReader lineReader, final LuceneRecord.Indexable record) {
 		final BytesRef termBytesRef = new BytesRef(lineReader.subject);
 		record.reset(new Term(URL, termBytesRef));
 		record.document.add(new StringField(URL, termBytesRef, Field.Store.NO));

@@ -93,7 +93,9 @@ abstract public class LuceneCommonIndex implements Closeable {
 
 	abstract public <T> T search(final FunctionEx<IndexSearcher, T, IOException> search) throws IOException;
 
-	public abstract void updateDocument(FacetsConfig facetsConfig, LuceneRecord record) throws IOException;
+	public abstract void updateDocument(FacetsConfig facetsConfig, LuceneRecord.Indexable record) throws IOException;
+
+	public abstract void updateDocValues(final LuceneRecord.DocValues record) throws IOException;
 
 	@FunctionalInterface
 	public interface FunctionEx<T, R, E extends Exception> {
@@ -110,8 +112,7 @@ abstract public class LuceneCommonIndex implements Closeable {
 		}
 
 		@Override
-		final public IndexSearcher newSearcher(final IndexReader reader, final IndexReader previousReader)
-				throws IOException {
+		final public IndexSearcher newSearcher(final IndexReader reader, final IndexReader previousReader) {
 			return new IndexSearcher(reader, executorService);
 		}
 	}

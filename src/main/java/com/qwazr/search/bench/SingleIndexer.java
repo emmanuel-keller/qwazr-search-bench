@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2017 Emmanuel Keller / QWAZR
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,12 +24,12 @@ import java.util.function.BiConsumer;
  */
 final public class SingleIndexer extends CommonIndexer {
 
-	private final LuceneRecord luceneRecord;
+	private final LuceneRecord.Indexable luceneRecord;
 
 	public SingleIndexer(final LuceneCommonIndex luceneIndex, final FacetsConfig facetsConfig,
-			final BiConsumer<TtlLineReader, LuceneRecord> converter, final int batchSize) {
+			final BiConsumer<TtlLineReader, LuceneRecord.Indexable> converter, final int batchSize) {
 		super(luceneIndex, facetsConfig, converter, batchSize);
-		luceneRecord = new LuceneRecord();
+		luceneRecord = new LuceneRecord.Indexable();
 	}
 
 	@Override

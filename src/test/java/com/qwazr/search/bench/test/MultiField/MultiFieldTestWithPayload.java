@@ -35,6 +35,7 @@ public class MultiFieldTestWithPayload extends MultiFieldTestBase<FullRecordWith
 		before(TestSettings.of(new TestResults())
 				.executor(true)
 				.index(BaseTest.INDEX_NAME)
+				.useCompoundFile(false)
 				.similarity(BooleanPayloadSimilarity.class)
 				.settings());
 	}

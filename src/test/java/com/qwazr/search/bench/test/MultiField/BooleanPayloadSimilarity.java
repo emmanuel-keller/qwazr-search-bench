@@ -17,8 +17,8 @@ public class BooleanPayloadSimilarity extends Similarity {
 
 	final float[] boosts;
 
-	public BooleanPayloadSimilarity() {
-		boosts = new float[] { 4, 2 };
+	public BooleanPayloadSimilarity(float... boosts) {
+		this.boosts = boosts;
 	}
 
 	@Override

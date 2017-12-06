@@ -44,6 +44,7 @@ public class MultiFieldTestNoPayload extends MultiFieldTestBase<FullRecordNoPayl
 		before(TestSettings.of(new TestResults())
 				.executor(true)
 				.index(BaseTest.INDEX_NAME)
+				.useCompoundFile(false)
 				.similarity(BooleanSimilarity.class)
 				.settings());
 	}
@@ -63,7 +64,7 @@ public class MultiFieldTestNoPayload extends MultiFieldTestBase<FullRecordNoPayl
 		fieldsBoosts.put("full", 1f);
 
 		return QueryDefinition.of(
-				new MultiFieldQuery(fieldsBoosts, null, null, QueryParserOperator.AND, queryString, null, 0.001f))
+				new MultiFieldQuery(fieldsBoosts, null, null, QueryParserOperator.AND, queryString, null, 0.001f, true))
 				.queryDebug(true)
 				.build();
 	}

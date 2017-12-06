@@ -16,6 +16,7 @@
 package com.qwazr.search.bench;
 
 import com.qwazr.utils.IOUtils;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.facet.FacetsConfig;
 import org.apache.lucene.replicator.IndexRevision;
 import org.apache.lucene.search.IndexSearcher;
@@ -62,14 +63,20 @@ public class LuceneNoTaxonomyIndex extends LuceneCommonIndex {
 	}
 
 	@Override
-	final public void updateDocument(final FacetsConfig facetsConfig, final LuceneRecord record) throws IOException {
+	final public void updateDocument(final FacetsConfig facetsConfig, final LuceneRecord.Indexable record)
+			throws IOException {
 		indexWriter.updateDocument(record.termId,
 				facetsConfig == null ? record.document : facetsConfig.build(record.document));
 	}
 
+	final public void updateDocValues(final LuceneRecord.DocValues record) throws IOException {
+		final Field[] fields = record.docValuesFields.toArray(new Field[record.docValuesFields.size()]);
+		indexWriter.updateDocValues(record.termId, fields);
+	}
+
 	@Override
-	public void close() throws IOException {
-		IOUtils.close(searcherManager, indexWriter, dataDirectory);
+	public void close() {
+		IOUtils.closeQuietly(searcherManager, indexWriter, dataDirectory);
 	}
 
 }

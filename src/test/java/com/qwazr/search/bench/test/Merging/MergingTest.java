@@ -84,7 +84,7 @@ public class MergingTest {
 		IndexFiles lastIndexFiles = index.getIndexFiles();
 		lastIndexFiles.dump("**** EMPTY INDEX *****", true);
 
-		final LuceneRecord luceneRecord = new LuceneRecord();
+		final LuceneRecord.Indexable luceneRecord = new LuceneRecord.Indexable();
 
 		for (int i = 0; i < ITERATIONS; i++) {
 			final int recordsCount = RandomUtils.nextInt(RECORDS_BUFFER_MIN, RECORDS_BUFFER_MAX);
@@ -134,7 +134,8 @@ public class MergingTest {
 		return builder.toString();
 	}
 
-	void addRecords(LuceneCommonIndex index, int count, Supplier<LuceneRecord> recordSupplier) throws IOException {
+	void addRecords(LuceneCommonIndex index, int count, Supplier<LuceneRecord.Indexable> recordSupplier)
+			throws IOException {
 		while (count-- > 0) {
 			index.updateDocument(null, recordSupplier.get());
 		}
