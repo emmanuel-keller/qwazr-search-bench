@@ -58,6 +58,10 @@ public class UpdateStringFieldTest extends UpdateFieldTest {
 				indexLoop(currentIndex, "Half Second docs", DOC_COUNT, DOC_COUNT * 2 - (DOC_COUNT / 2), DOC_COUNT * 2,
 						record, this::prepareRecord, r -> index.updateDocument(null, record));
 
+		currentIndex = indexLoop(currentIndex, "Quarter Second docs", DOC_COUNT * 2 - (DOC_COUNT / 2),
+				DOC_COUNT * 2 - (DOC_COUNT / 4), DOC_COUNT * 2, record, this::prepareRecord,
+				r -> index.updateDocument(null, record));
+
 		Assert.assertNotNull(currentIndex);
 	}
 

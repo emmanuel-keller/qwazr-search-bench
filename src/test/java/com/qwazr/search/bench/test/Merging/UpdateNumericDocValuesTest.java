@@ -49,21 +49,28 @@ public class UpdateNumericDocValuesTest extends UpdateFieldTest {
 
 		final LuceneRecord.Indexable indexableRecord = new LuceneRecord.Indexable();
 
-		currentIndex =
-				indexLoop(currentIndex, "First docs", 0, DOC_COUNT, DOC_COUNT, indexableRecord, this::prepareRecord,
-						r -> index.updateDocument(null, indexableRecord));
+		currentIndex = indexLoop(currentIndex, "First docs (updateDocument)", 0, DOC_COUNT, DOC_COUNT, indexableRecord,
+				this::prepareRecord, r -> index.updateDocument(null, indexableRecord));
 
 		final LuceneRecord.DocValues docValuesRecord = new LuceneRecord.DocValues();
 
-		currentIndex = indexLoop(currentIndex, "First docs again", 0, DOC_COUNT, DOC_COUNT, docValuesRecord,
+		currentIndex = indexLoop(currentIndex, "First docs (updateDocValues)", 0, DOC_COUNT, DOC_COUNT, docValuesRecord,
 				this::prepareSameRecord, r -> index.updateDocValues(docValuesRecord));
 
-		currentIndex = indexLoop(currentIndex, "Second docs", DOC_COUNT, DOC_COUNT * 2, DOC_COUNT * 2, indexableRecord,
-				this::prepareRecord, r -> index.updateDocument(null, indexableRecord));
+		currentIndex = indexLoop(currentIndex, "Half first docs (updateDocValues)", 0, DOC_COUNT / 2, DOC_COUNT,
+				docValuesRecord, this::prepareSameRecord, r -> index.updateDocValues(docValuesRecord));
+
+		currentIndex = indexLoop(currentIndex, "Second docs (updateDocument)", DOC_COUNT, DOC_COUNT * 2, DOC_COUNT * 2,
+				indexableRecord, this::prepareRecord, r -> index.updateDocument(null, indexableRecord));
 
 		currentIndex =
-				indexLoop(currentIndex, "Half Second docs", DOC_COUNT, DOC_COUNT * 2 - (DOC_COUNT / 2), DOC_COUNT * 2,
-						indexableRecord, this::prepareRecord, r -> index.updateDocument(null, indexableRecord));
+				indexLoop(currentIndex, "Half Second docs (updateDocument)", DOC_COUNT, DOC_COUNT * 2 - (DOC_COUNT / 2),
+						DOC_COUNT * 2, indexableRecord, this::prepareRecord,
+						r -> index.updateDocument(null, indexableRecord));
+
+		currentIndex = indexLoop(currentIndex, "Quarter Second docs (updateDocument)", DOC_COUNT * 2 - (DOC_COUNT / 2),
+				DOC_COUNT * 2 - (DOC_COUNT / 4), DOC_COUNT * 2, indexableRecord, this::prepareRecord,
+				r -> index.updateDocument(null, indexableRecord));
 
 		Assert.assertNotNull(currentIndex);
 	}

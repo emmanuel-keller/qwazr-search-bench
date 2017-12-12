@@ -43,7 +43,7 @@ public abstract class UpdateFieldTest {
 	public void setup() throws IOException {
 		executor = Executors.newCachedThreadPool();
 		final Path schemaDirectory = Files.createTempDirectory("lucene-merging");
-
+		System.out.println(schemaDirectory);
 		index = new LuceneNoTaxonomyIndex(schemaDirectory, BaseTest.SCHEMA_NAME, BaseTest.INDEX_NAME, executor, 1024,
 				false);
 		index.commitAndPublish();
@@ -73,10 +73,11 @@ public abstract class UpdateFieldTest {
 		int numDocs = index.search(searcher -> searcher.getIndexReader().numDocs());
 		Assert.assertEquals(expectedNumDocs, numDocs);
 
+		final String sessionNameExt = sessionName + " (" + from + "-" + to + ")";
 		// Compare the files
 		final IndexFiles indexFiles = index.getIndexFiles();
-		indexFiles.dump(sessionName, true);
-		indexFiles.getUpdatedFiles(previousIndex).dump("Diff");
+		indexFiles.dump(sessionNameExt + " INDEX", true);
+		indexFiles.getUpdatedFiles(previousIndex).dump(sessionNameExt + " DIFF");
 
 		return indexFiles;
 	}
