@@ -63,8 +63,6 @@ public abstract class BaseTest implements Function<TtlLineReader, Boolean> {
 
 	public static void before(final TestSettings settings) throws Exception {
 
-		ProfilerManager.load(null);
-
 		Thread.sleep(20000);
 
 		// Download the DBPedia file

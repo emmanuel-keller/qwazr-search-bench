@@ -104,6 +104,31 @@
 
     <build>
         <plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.1</version>
+				<executions>
+					<execution>
+						<id>copy-agent</id>
+						<phase>process-test-classes</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.qwazr</groupId>
+									<artifactId>qwazr-profiler</artifactId>
+									<version>1.4.0</version>
+									<outputDirectory>${project.build.directory}/agents</outputDirectory>
+									<destFileName>qwazr-profiler.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -111,7 +136,7 @@
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
-                    <argLine>-Xms1G -Xmx1G</argLine>
+                    <argLine>-Xms1G -Xmx1G -javaagent:${project.build.directory}/agents/qwazr-profiler.jar</argLine>
                     <includes>
                         <include>**/*TestSuite.java</include>
                     </includes>
