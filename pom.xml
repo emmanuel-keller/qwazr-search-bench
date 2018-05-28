@@ -5,7 +5,7 @@
     <groupId>com.qwazr</groupId>
     <name>Search-Bench</name>
     <artifactId>qwazr-search-bench</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <url>https://github.com/qwazr/search-bench</url>
@@ -38,7 +38,7 @@
         <connection>scm:git:git@github.com:qwazr/search-bench.git</connection>
         <developerConnection>scm:git:git@github.com:qwazr/search-bench.git</developerConnection>
         <url>git@github.com:qwazr/search-bench.git</url>
-        <tag>v1.4.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <issueManagement>
         <url>https://github.com/qwazr/search-bench/issues</url>
