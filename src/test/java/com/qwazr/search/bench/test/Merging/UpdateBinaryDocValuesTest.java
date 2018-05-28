@@ -15,15 +15,14 @@
  */
 package com.qwazr.search.bench.test.Merging;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import org.apache.lucene.document.BinaryDocValuesField;
 import org.apache.lucene.util.BytesRef;
 
 public class UpdateBinaryDocValuesTest extends UpdateNumericDocValuesTest {
 
-	@Override
-	protected BinaryDocValuesField getField(String id) {
-		return new BinaryDocValuesField("dv", new BytesRef("dv" + id));
-	}
+    @Override
+    protected BinaryDocValuesField getField(String id) {
+        return new BinaryDocValuesField("dv", new BytesRef("dv" + id));
+    }
 
 }
